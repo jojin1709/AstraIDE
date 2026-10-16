@@ -1,0 +1,63 @@
+name: Release AstraIDE
+
+on:
+  push:
+    tags:
+      - 'v*'
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run verification tests
+        run: |
+          npm run build
+          cd src-tauri
+          cargo test --verbose
+
+      - name: Build Tauri Desktop Application & NSIS Installer
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: v__VERSION__
+          releaseName: 'AstraIDE v__VERSION__'
+          releaseBody: |
+            ## AstraIDE — Lightweight Android Development Environment for Windows
+            
+            ### Included Assets:
+            - **NSIS Setup Installer**: `AstraIDE_${{ github.ref_name }}_x64-setup.exe` (Easy one-click installation with desktop shortcut)
+            - **Standalone Binary**: `AstraIDE.exe`
+            
+            ### Highlights:
+            - Low idle memory usage (~180-220 MB RAM)
+            - Real physical Android USB debugging & device screen captures
+            - Logcat live streaming with log level filtering
+            - Gradle build execution with live logs
+            - APK Analyzer & Storage footprint analyzer
+            - Integrated PowerShell & CMD Windows terminal
+          releaseDraft: false
+          prerelease: false
+          args: --bundles nsis
