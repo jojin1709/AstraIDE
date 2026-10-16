@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AstraIDE — Lightweight Android Development Environment for Windows</title>
+  <meta name="description" content="A lightweight Windows-native Android development environment built with Rust and Tauri 2.">
+  <meta name="author" content="JOJIN JOHN">
+  <meta name="theme-color" content="#ffffff">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://jojin1709.github.io/AstraIDE/">
+  <meta property="og:title" content="AstraIDE — Lightweight Android Development Environment for Windows">
+  <meta property="og:description" content="A lightweight Windows-native Android development environment built with Rust and Tauri 2. Focused on physical devices, local Gradle builds, and instant startup.">
+  <meta property="og:image" content="./assets/screenshots/astraide-dark.png">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="AstraIDE — Lightweight Android Development Environment for Windows">
+  <meta name="twitter:description" content="A lightweight Windows-native Android development environment built with Rust and Tauri 2.">
+  <meta name="twitter:image" content="./assets/screenshots/astraide-dark.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+  <!-- ======================================================================
+       1. STICKY NAVBAR
+       ====================================================================== -->
+  <header class="navbar" role="banner">
+    <div class="container navbar-container">
+      <a href="./" class="navbar-brand" aria-label="AstraIDE Home">
+        <img src="./assets/logo.svg" alt="AstraIDE Logo" width="28" height="28">
+        <span>AstraIDE</span>
+        <span class="brand-tag">v0.1.0</span>
+      </a>
+
+      <nav class="navbar-menu" role="navigation" aria-label="Main Navigation">
+        <ul class="navbar-links">
+          <li><a href="#features" class="navbar-link">Features</a></li>
+          <li><a href="#performance" class="navbar-link">Performance</a></li>
+          <li><a href="#architecture" class="navbar-link">Architecture</a></li>
+          <li><a href="#quickstart" class="navbar-link">Quick Start</a></li>
+          <li><a href="#faq" class="navbar-link">FAQ</a></li>
+        </ul>
+
+        <div class="navbar-actions">
+          <a href="https://github.com/jojin1709/AstraIDE" class="btn btn-secondary btn-sm" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+            <span>GitHub</span>
+          </a>
+        </div>
+      </nav>
+
+      <button class="mobile-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <!-- ======================================================================
+         2. HERO SECTION
+         ====================================================================== -->
+    <section class="hero" aria-labelledby="hero-heading">
+      <div class="container">
+        <div class="hero-eyebrow">
+          <span>OPEN SOURCE</span>
+          <span>•</span>
+          <span>WINDOWS</span>
+          <span>•</span>
+          <span>MIT</span>
+        </div>
+
+        <h1 id="hero-heading" class="hero-heading">
+          Android development.<br>Without the heavyweight IDE.
+        </h1>
+
+        <p class="hero-subtext">
+          A lightweight Windows-native Android development environment built with Rust and Tauri 2. Edit code, build with Gradle, manage devices, inspect APKs, and stream Logcat from one focused workspace.
+        </p>
+
+        <div class="hero-actions">
+          <a href="https://github.com/jojin1709/AstraIDE/releases" class="btn btn-primary btn-lg" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>Download for Windows</span>
+          </a>
+
+          <a href="https://github.com/jojin1709/AstraIDE" class="btn btn-secondary btn-lg" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+            <span>View on GitHub</span>
+          </a>
+        </div>
+
+        <div class="hero-meta">
+          <span>Windows 10/11 x64</span>
+          <span class="dot"></span>
+          <span>Rust + Tauri 2</span>
+          <span class="dot"></span>
+          <span>MIT Licensed</span>
+          <span class="dot"></span>
+          <span>Open Source</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         3. PRODUCT SHOWCASE (AUTHENTIC APPLICATION WINDOW)
+         ====================================================================== -->
+    <section class="showcase" aria-labelledby="showcase-heading">
+      <div class="container">
+        <h2 id="showcase-heading" class="sr-only" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;">AstraIDE Desktop Application Preview</h2>
+        <div class="showcase-window">
+          <div class="showcase-titlebar">
+            <div class="window-dots">
+              <span class="window-dot"></span>
+              <span class="window-dot"></span>
+              <span class="window-dot"></span>
+            </div>
+            <div class="window-title">
+              <img src="./assets/logo.svg" alt="" width="16" height="16">
+              <span>AstraIDE — [C:\Projects\AstraDemo]</span>
+            </div>
+            <div class="window-tabs" role="tablist" aria-label="Preview Theme Selectors">
+              <button class="showcase-tab active" data-mode="dark" role="tab" aria-selected="true">Dark Mode</button>
+              <button class="showcase-tab" data-mode="light" role="tab" aria-selected="false">Light Mode</button>
+              <button class="showcase-tab" data-mode="settings" role="tab" aria-selected="false">Settings</button>
+            </div>
+          </div>
+          <div class="showcase-viewport">
+            <img id="showcase-img" src="./assets/screenshots/astraide-dark.png" alt="AstraIDE Workspace Dark Mode with Android Diagnostics and Project Explorer" loading="eager" width="1280" height="720">
+          </div>
+        </div>
+        <p id="showcase-caption" class="showcase-caption">A focused workspace for building and debugging Android applications.</p>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         4. VALUE PROPOSITION (4 CONCISE COLUMNS)
+         ====================================================================== -->
+    <section class="section section-surface" aria-labelledby="value-heading">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-eyebrow">Guiding Principles</span>
+          <h2 id="value-heading" class="section-title">Built for developers who want their machine back.</h2>
+          <p class="section-subtitle">AstraIDE strips away background telemetry, indexing stalls, and multi-gigabyte memory footprints.</p>
+        </div>
+
+        <div class="value-grid">
+          <div class="value-card">
+            <div class="value-icon">
+              <img src="./assets/icons/rust.svg" alt="" width="20" height="20">
+            </div>
+            <h3 class="value-title">Lightweight</h3>
+            <p class="value-desc">Native Rust core with a minimal desktop shell. Keeps CPU and RAM available for your compiler and Gradle builds.</p>
+          </div>
+
+          <div class="value-card">
+            <div class="value-icon">
+              <img src="./assets/icons/device.svg" alt="" width="20" height="20">
+            </div>
+            <h3 class="value-title">Physical-device first</h3>
+            <p class="value-desc">Connect your Android phone over USB or Wi-Fi and deploy directly without spinning up resource-intensive emulators.</p>
+          </div>
+
+          <div class="value-card">
+            <div class="value-icon">
+              <img src="./assets/icons/shield.svg" alt="" width="20" height="20">
+            </div>
+            <h3 class="value-title">Offline by design</h3>
+            <p class="value-desc">Edit, build, debug and deploy locally without cloud services, account logins, or background tracking.</p>
+          </div>
+
+          <div class="value-card">
+            <div class="value-icon">
+              <img src="./assets/icons/diagnostics.svg" alt="" width="20" height="20">
+            </div>
+            <h3 class="value-title">Focused</h3>
+            <p class="value-desc">Only the tools needed for Android development stay in your workspace, keeping the entire interface fast and predictable.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         5. FEATURE GRID (9 TECHNICAL CAPABILITIES)
+         ====================================================================== -->
+    <section id="features" class="section" aria-labelledby="features-heading">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-eyebrow">Capabilities</span>
+          <h2 id="features-heading" class="section-title">Everything essential for Android engineering.</h2>
+          <p class="section-subtitle">Designed to orchestrate the official Android platform toolchain through a high-performance desktop interface.</p>
+        </div>
+
+        <div class="features-grid">
+          <!-- 1. Code Editor -->
+          <div class="feature-card">
+            <div class="feature-icon">
+              <img src="./assets/icons/editor.svg" alt="" width="22" height="22">
+            </div>
+            <h3 class="feature-title">Code Editor</h3>
+            <p class="feature-desc">Fast CodeMirror 6 editor with support for Kotlin, Java, XML, Gradle, JSON and Markdown editing with instantaneous tab switching.</p>
+          </div>
+
+          <!-- 2. Device Manager -->
+          <div class="feature-card">
+            <div class="feature-icon">
+              <img src="./assets/icons/device.svg" alt="" width="22" height="22">
+            </div>
+            <h3 class="feature-title">Device Manager</h3>
+            <p class="feature-desc">Detect USB and Wi-Fi Android devices, view device hardware information, battery status, and deploy APKs directly.</p>
+          </div>
+
+          <!-- 3. Live Logcat -->
+          <div class="feature-card">
+            <div class="feature-icon">
+              <img src="./assets/icons/logcat.svg" alt="" width="22" height="22">
+            </div>
+            <h3 class="feature-title">Live Logcat</h3>
+            <p class="feature-desc">High-throughput Logcat viewer with filtering by log level, PID, package identifier, and real-time text matching.</p>
+          </div>
+
+          <!-- 4. Gradle Builds -->
+          <div class="feature-card">
+            <div class="feature-icon">
+              <img src="./assets/icons/gradle.svg" alt="" width="22" height="22">
+            </div>
+            <h3 class="feature-title">Gradle Builds</h3>
+            <p class="feature-desc">Run real Gradle wrapper commands (assembleDebug, installDebug, clean) and stream structured build output in real time.</p>
+          </div>
+
+          <!-- 5. APK Analyzer -->
+          <div class="feature-card">
+            <div class="feature-icon">
+              <img src="./assets/icons/apk.svg" alt="" width="22" height="22">
+            </div>
+            <h3 class="feature-title">APK Analyzer</h3>
+            <p class="feature-desc">Inspect APK structure, DEX classes, ABI native architectures, asset payloads, and AndroidManifest metadata.</p>
+          </div>
+
+          <!-- 6. Environment Diagnostics -->
+          <div class="feature-card">
+            <div class="feature-icon">
+              <img src="./assets/icons/diagnostics.svg" alt="" width="22" height="22">
+            </div>
+            <h3 class="feature-title">Environment Diagnostics</h3>
+            <p class="feature-desc">Automatically verify JDK paths, Android SDK platform tools, ADB server daemon, Git binary, and connected devices.</p>
+          </div>
+
+          <!-- 7. Storage Analyzer -->
+          <div class="feature-card">
+            <div class="feature-icon">
+              <img src="./assets/icons/storage.svg" alt="" width="22" height="22">
+            </div>
+            <h3 class="feature-title">Storage Analyzer</h3>
+            <p class="feature-desc">Inspect Android SDK platforms, Gradle caches, emulator system images, and project build artifact storage usage.</p>
+          </div>
+
+          <!-- 8. Integrated Terminal -->
+          <div class="feature-card">
+            <div class="feature-icon">
+              <img src="./assets/icons/terminal.svg" alt="" width="22" height="22">
+            </div>
+            <h3 class="feature-title">Integrated Terminal</h3>
+            <p class="feature-desc">Embedded PowerShell and Command Prompt initialized directly inside the active Android project root directory.</p>
+          </div>
+
+          <!-- 9. Git Integration -->
+          <div class="feature-card">
+            <div class="feature-icon">
+              <img src="./assets/icons/git.svg" alt="" width="22" height="22">
+            </div>
+            <h3 class="feature-title">Git Integration</h3>
+            <p class="feature-desc">View staged and unstaged file changes, branch topology, commit diffs, and perform repository commits without leaving AstraIDE.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         6. PERFORMANCE SECTION (RESTING METRICS & HONEST PRESENTATION)
+         ====================================================================== -->
+    <section id="performance" class="section section-surface" aria-labelledby="perf-heading">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-eyebrow">Efficiency</span>
+          <h2 id="perf-heading" class="section-title">Designed around resource efficiency.</h2>
+          <p class="section-subtitle">Real measurements from AstraIDE v0.1.0 on a baseline Windows 64-bit environment.</p>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-value">~180–220 MB</div>
+            <div class="metric-label">Idle RAM</div>
+            <div class="metric-sub">Base IDE memory footprint</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-value">&lt;1 sec</div>
+            <div class="metric-label">Cold Startup</div>
+            <div class="metric-sub">Instant application launch</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-value">~15 MB</div>
+            <div class="metric-label">Executable Size</div>
+            <div class="metric-sub">Compact standalone binary</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-value">Windows 10/11</div>
+            <div class="metric-label">Native Target</div>
+            <div class="metric-sub">Direct win32 subsystem execution</div>
+          </div>
+        </div>
+
+        <div class="perf-table-wrapper">
+          <table class="perf-table">
+            <thead>
+              <tr>
+                <th>Resource Metric</th>
+                <th>AstraIDE Architecture</th>
+                <th>Technical Characteristic</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Application Core</strong></td>
+                <td class="highlight">Rust compiled binary</td>
+                <td>Zero Java runtime overhead for the editor itself</td>
+              </tr>
+              <tr>
+                <td><strong>Process Spawning</strong></td>
+                <td class="highlight">Structured OS process pipes</td>
+                <td>Direct adb.exe and gradlew.bat invocation</td>
+              </tr>
+              <tr>
+                <td><strong>Rendering Engine</strong></td>
+                <td class="highlight">Tauri 2 / WebView2 runtime</td>
+                <td>Leverages Windows system WebView without bundled Chromium</td>
+              </tr>
+              <tr>
+                <td><strong>Logcat Streaming</strong></td>
+                <td class="highlight">Buffered asynchronous ring buffer</td>
+                <td>Maintains UI responsiveness during high log volume</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="perf-disclaimer">
+          * Measurements are project-specific and depend on system configuration, active tooling and workload.
+        </p>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         7. ARCHITECTURE (PURE HTML/CSS/SVG DIAGRAM)
+         ====================================================================== -->
+    <section id="architecture" class="section" aria-labelledby="arch-heading">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-eyebrow">System Architecture</span>
+          <h2 id="arch-heading" class="section-title">Clean process separation and native orchestration.</h2>
+          <p class="section-subtitle">How AstraIDE bridges web technologies, the Rust systems layer, and the Android SDK.</p>
+        </div>
+
+        <div class="arch-container">
+          <div class="arch-diagram">
+            <!-- Root -->
+            <div class="arch-node arch-node-root">
+              <span>AstraIDE Application</span>
+            </div>
+
+            <div class="arch-connector"></div>
+
+            <!-- Layer 1 -->
+            <div class="arch-node">
+              <strong>Tauri 2 Shell</strong>
+              <small style="display:block;color:var(--muted);font-size:11px;">Desktop lifecycle, window management, and native system permissions</small>
+            </div>
+
+            <div class="arch-connector"></div>
+
+            <!-- Frontend Layer -->
+            <div class="arch-node-group">
+              <div class="arch-node-sub">
+                TypeScript / React
+                <small>State &amp; Workspace UI</small>
+              </div>
+              <div class="arch-node-sub">
+                CodeMirror 6
+                <small>Multi-language Editing</small>
+              </div>
+              <div class="arch-node-sub">
+                Virtual Terminal
+                <small>PowerShell / CMD IO</small>
+              </div>
+            </div>
+
+            <div class="arch-connector"></div>
+
+            <!-- Rust Core -->
+            <div class="arch-node arch-node-rust">
+              <strong>Rust Native Core</strong>
+              <small style="display:block;color:#c2410c;font-size:11px;">Thread pools, asynchronous process execution, file watching, and device monitoring</small>
+            </div>
+
+            <div class="arch-connector"></div>
+
+            <!-- CLI Tools -->
+            <div class="arch-node-group">
+              <div class="arch-node-sub">
+                <strong>ADB Daemon</strong>
+                <small>USB / Wi-Fi Device IO</small>
+              </div>
+              <div class="arch-node-sub">
+                <strong>Gradle Daemon</strong>
+                <small>Incremental Compiles</small>
+              </div>
+              <div class="arch-node-sub">
+                <strong>Git CLI</strong>
+                <small>Source Version Control</small>
+              </div>
+            </div>
+
+            <div class="arch-connector"></div>
+
+            <!-- System Target -->
+            <div class="arch-node arch-node-toolchain">
+              <strong>Android SDK Toolchain &amp; Physical Android Device</strong>
+              <small style="display:block;color:#15803d;font-size:11px;">Target device execution via adb over USB or TCP/IP</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="arch-explainer">
+          <div class="arch-card">
+            <h4>Native Subprocess Model</h4>
+            <p>AstraIDE executes official SDK binaries directly via structured process arguments. It avoids in-process JVM embedding, ensuring crashes or memory spikes in builds never affect the IDE.</p>
+          </div>
+          <div class="arch-card">
+            <h4>Asynchronous Event Stream</h4>
+            <p>Logcat lines, build milestones, and ADB device state changes are piped from background Rust threads straight to the user interface via lightweight Tauri events.</p>
+          </div>
+          <div class="arch-card">
+            <h4>No Heavy Background Daemon</h4>
+            <p>When AstraIDE closes, its background helpers cleanly terminate. No rogue background indexing processes stay resident on your Windows workstation.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         8. TECHNOLOGY STACK
+         ====================================================================== -->
+    <section class="section section-surface" aria-labelledby="tech-heading">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-eyebrow">Foundation</span>
+          <h2 id="tech-heading" class="section-title">Built with proven, modern technologies.</h2>
+          <p class="section-subtitle">Every piece of the stack was chosen for determinism, performance, and memory economy.</p>
+        </div>
+
+        <div class="tech-grid">
+          <!-- Rust -->
+          <div class="tech-card">
+            <div class="tech-icon">
+              <img src="./assets/icons/rust.svg" alt="Rust" width="20" height="20">
+            </div>
+            <div>
+              <div class="tech-name">Rust</div>
+              <div class="tech-desc">Provides memory-safe, zero-cost abstractions for ADB communication and child process execution.</div>
+            </div>
+          </div>
+
+          <!-- Tauri 2 -->
+          <div class="tech-card">
+            <div class="tech-icon">
+              <img src="./assets/icons/tauri.svg" alt="Tauri" width="20" height="20">
+            </div>
+            <div>
+              <div class="tech-name">Tauri 2</div>
+              <div class="tech-desc">Next-generation cross-platform app framework leveraging the native Windows WebView2 control.</div>
+            </div>
+          </div>
+
+          <!-- TypeScript -->
+          <div class="tech-card">
+            <div class="tech-icon">
+              <img src="./assets/icons/typescript.svg" alt="TypeScript" width="20" height="20">
+            </div>
+            <div>
+              <div class="tech-name">TypeScript</div>
+              <div class="tech-desc">Type-safe frontend logic managing editor state, diagnostics, and interactive tooling panels.</div>
+            </div>
+          </div>
+
+          <!-- React -->
+          <div class="tech-card">
+            <div class="tech-icon">
+              <img src="./assets/icons/react.svg" alt="React" width="20" height="20">
+            </div>
+            <div>
+              <div class="tech-name">React</div>
+              <div class="tech-desc">Predictable component architecture for the workspace layout, device manager, and settings panels.</div>
+            </div>
+          </div>
+
+          <!-- CodeMirror 6 -->
+          <div class="tech-card">
+            <div class="tech-icon">
+              <img src="./assets/icons/codemirror.svg" alt="CodeMirror 6" width="20" height="20">
+            </div>
+            <div>
+              <div class="tech-name">CodeMirror 6</div>
+              <div class="tech-desc">Extensible, fast text editor engine supporting syntax highlighting for Kotlin, Java, and XML.</div>
+            </div>
+          </div>
+
+          <!-- Android SDK -->
+          <div class="tech-card">
+            <div class="tech-icon">
+              <img src="./assets/icons/android.svg" alt="Android SDK" width="20" height="20">
+            </div>
+            <div>
+              <div class="tech-name">Android SDK</div>
+              <div class="tech-desc">Standard Android API platforms, Build-Tools, and AAPT2 analyzer binaries.</div>
+            </div>
+          </div>
+
+          <!-- ADB -->
+          <div class="tech-card">
+            <div class="tech-icon">
+              <img src="./assets/icons/adb.svg" alt="ADB" width="20" height="20">
+            </div>
+            <div>
+              <div class="tech-name">ADB</div>
+              <div class="tech-desc">Android Debug Bridge daemon for device discovery, APK installation, and Logcat streaming.</div>
+            </div>
+          </div>
+
+          <!-- Gradle -->
+          <div class="tech-card">
+            <div class="tech-icon">
+              <img src="./assets/icons/gradle.svg" alt="Gradle" width="20" height="20">
+            </div>
+            <div>
+              <div class="tech-name">Gradle</div>
+              <div class="tech-desc">Standard build automation system executing local project Gradle wrappers.</div>
+            </div>
+          </div>
+
+          <!-- Git -->
+          <div class="tech-card">
+            <div class="tech-icon">
+              <img src="./assets/icons/git.svg" alt="Git" width="20" height="20">
+            </div>
+            <div>
+              <div class="tech-name">Git</div>
+              <div class="tech-desc">Distributed version control integration for reviewing project branches, diffs, and commits.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         9. QUICK START (5 NUMBERED STEPS)
+         ====================================================================== -->
+    <section id="quickstart" class="section" aria-labelledby="quickstart-heading">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-eyebrow">Getting Started</span>
+          <h2 id="quickstart-heading" class="section-title">Up and running in minutes.</h2>
+          <p class="section-subtitle">No multi-step setup wizards or gigabytes of bundled dependencies.</p>
+        </div>
+
+        <div class="steps-list">
+          <!-- Step 1 -->
+          <div class="step-item">
+            <div class="step-num">01</div>
+            <div class="step-content">
+              <h3 class="step-title">Download AstraIDE</h3>
+              <p class="step-text">Download the prebuilt Windows standalone executable or installer directly from the GitHub releases page.</p>
+              <a href="https://github.com/jojin1709/AstraIDE/releases" class="btn btn-primary btn-sm" target="_blank" rel="noopener noreferrer">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <span>Download AstraIDE v0.1.0</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="step-item">
+            <div class="step-num">02</div>
+            <div class="step-content">
+              <h3 class="step-title">Check your environment</h3>
+              <p class="step-text">Ensure your machine has the required development toolchain installed. AstraIDE verifies these paths automatically upon launch.</p>
+              <div class="step-code-box">
+                <code>Windows 10/11 x64 • JDK 17 or 21 • Android SDK • Platform Tools • Build Tools</code>
+                <button class="copy-btn" data-copy="Windows 10/11 x64, JDK 17/21, Android SDK Platform-Tools" aria-label="Copy requirements">
+                  <img src="./assets/icons/copy.svg" alt="" width="13" height="13">
+                  <span>Copy</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="step-item">
+            <div class="step-num">03</div>
+            <div class="step-content">
+              <h3 class="step-title">Connect your device</h3>
+              <p class="step-text">Enable <strong>USB Debugging</strong> on your Android handset in Developer Options, attach the USB cable, and authorize the computer prompt.</p>
+              <div class="step-code-box">
+                <code>adb devices</code>
+                <button class="copy-btn" data-copy="adb devices" aria-label="Copy adb devices command">
+                  <img src="./assets/icons/copy.svg" alt="" width="13" height="13">
+                  <span>Copy</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="step-item">
+            <div class="step-num">04</div>
+            <div class="step-content">
+              <h3 class="step-title">Open a project</h3>
+              <p class="step-text">Select <strong>Open Project</strong> from the welcome dashboard and point to any existing Android Gradle repository (or generate a starter template).</p>
+            </div>
+          </div>
+
+          <!-- Step 5 -->
+          <div class="step-item">
+            <div class="step-num">05</div>
+            <div class="step-content">
+              <h3 class="step-title">Build and run</h3>
+              <p class="step-text">Select your target Android device in the top navigation bar and press <kbd>F5</kbd>. AstraIDE triggers the Gradle wrapper, installs the generated APK, and automatically opens live Logcat.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         10. TECHNICAL REQUIREMENTS
+         ====================================================================== -->
+    <section class="section section-surface" aria-labelledby="req-heading">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-eyebrow">Prerequisites</span>
+          <h2 id="req-heading" class="section-title">System requirements.</h2>
+          <p class="section-subtitle">AstraIDE coordinates the standard Android toolchain rather than replacing Android SDK or Gradle itself.</p>
+        </div>
+
+        <div class="req-table-box">
+          <table class="req-table">
+            <thead>
+              <tr>
+                <th style="width: 40%;">Requirement</th>
+                <th>Specification / Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Operating System</strong></td>
+                <td>Windows 10 / Windows 11 (64-bit)</td>
+              </tr>
+              <tr>
+                <td><strong>Java Development Kit</strong></td>
+                <td>JDK 17 or JDK 21 (Temurin, OpenJDK, or Oracle)</td>
+              </tr>
+              <tr>
+                <td><strong>Android SDK</strong></td>
+                <td>Required (configured via <code>ANDROID_HOME</code> or AstraIDE settings)</td>
+              </tr>
+              <tr>
+                <td><strong>Platform Tools</strong></td>
+                <td>Required (contains <code>adb.exe</code>)</td>
+              </tr>
+              <tr>
+                <td><strong>Build Tools</strong></td>
+                <td>Required (contains <code>aapt2.exe</code>, <code>zipalign.exe</code>)</td>
+              </tr>
+              <tr>
+                <td><strong>Physical Device</strong></td>
+                <td>Recommended (USB or Wi-Fi with USB debugging enabled)</td>
+              </tr>
+              <tr>
+                <td><strong>Emulator (AVD)</strong></td>
+                <td>Optional (supported when an Android Virtual Device is configured)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="req-note">
+          AstraIDE orchestrates the official Android toolchain rather than replacing Android SDK/Gradle itself.
+        </p>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         11. PRIVACY & SECURITY
+         ====================================================================== -->
+    <section class="section" aria-labelledby="privacy-heading">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-eyebrow">Local First</span>
+          <h2 id="privacy-heading" class="section-title">Your project stays on your machine.</h2>
+          <p class="section-subtitle">No accounts, no external cloud dependencies, and zero code upload telemetry.</p>
+        </div>
+
+        <div class="privacy-grid">
+          <div class="privacy-card">
+            <h3 class="privacy-title">Offline-first</h3>
+            <p class="privacy-desc">AstraIDE is designed to operate locally. All parsing, file editing, and diagnostics run directly on your hardware without internet connectivity.</p>
+          </div>
+
+          <div class="privacy-card">
+            <h3 class="privacy-title">Zero telemetry</h3>
+            <p class="privacy-desc">No cloud telemetry, tracking pixels, or source-code uploads. Your codebase and project structure are strictly confidential to your machine.</p>
+          </div>
+
+          <div class="privacy-card">
+            <h3 class="privacy-title">Local builds</h3>
+            <p class="privacy-desc">Gradle builds execute on the user's machine through official local wrappers without intermediary remote build services.</p>
+          </div>
+
+          <div class="privacy-card">
+            <h3 class="privacy-title">Safe process execution</h3>
+            <p class="privacy-desc">External tools such as Gradle, ADB and Git are executed using structured process arguments without raw arbitrary shell evaluation.</p>
+          </div>
+        </div>
+
+        <p class="req-note">
+          Review our security policies and audit guidelines in <a href="https://github.com/jojin1709/AstraIDE/blob/main/SECURITY.md" target="_blank" rel="noopener noreferrer" style="color:var(--brand);text-decoration:underline;">SECURITY.md on GitHub</a>.
+        </p>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         12. KEYBOARD SHORTCUTS
+         ====================================================================== -->
+    <section class="section section-surface" aria-labelledby="shortcuts-heading">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-eyebrow">Productivity</span>
+          <h2 id="shortcuts-heading" class="section-title">Default keyboard shortcuts.</h2>
+          <p class="section-subtitle">Familiar, ergonomic shortcuts for navigating your Android workflow.</p>
+        </div>
+
+        <div class="shortcuts-table-box">
+          <table class="shortcuts-table">
+            <thead>
+              <tr>
+                <th style="width: 50%;">Shortcut</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd></td>
+                <td>Command Palette</td>
+              </tr>
+              <tr>
+                <td><kbd>F5</kbd></td>
+                <td>Build &amp; Run (Active Device)</td>
+              </tr>
+              <tr>
+                <td><kbd>Ctrl</kbd> + <kbd>S</kbd></td>
+                <td>Save File</td>
+              </tr>
+              <tr>
+                <td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd></td>
+                <td>Save All Open Files</td>
+              </tr>
+              <tr>
+                <td><kbd>Ctrl</kbd> + <kbd>F</kbd></td>
+                <td>Find in Editor</td>
+              </tr>
+              <tr>
+                <td><kbd>Ctrl</kbd> + <kbd>W</kbd></td>
+                <td>Close Active Tab</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         13. FREQUENTLY ASKED QUESTIONS
+         ====================================================================== -->
+    <section id="faq" class="section" aria-labelledby="faq-heading">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-eyebrow">Questions &amp; Answers</span>
+          <h2 id="faq-heading" class="section-title">Frequently asked questions.</h2>
+          <p class="section-subtitle">Straightforward technical answers about AstraIDE capabilities and scope.</p>
+        </div>
+
+        <div class="faq-list">
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false">
+              <span>Do I need Rust or Node.js to use AstraIDE?</span>
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            <div class="faq-answer">
+              No. The prebuilt Windows release can be downloaded from GitHub Releases as a standalone executable. You do not need to install Rust, Node.js, or npm to run the application.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false">
+              <span>Does AstraIDE support physical Android devices?</span>
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            <div class="faq-answer">
+              Yes. Physical devices are a primary design focus of AstraIDE. You can plug in your device via USB or connect over Wi-Fi ADB, inspect hardware diagnostics, and deploy APKs immediately.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false">
+              <span>Does AstraIDE support emulators?</span>
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            <div class="faq-answer">
+              Yes, when an Android Virtual Device (AVD) is configured on your system, AstraIDE will detect the running emulator instance via ADB and allow direct deployment and Logcat monitoring.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false">
+              <span>Does AstraIDE require internet?</span>
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            <div class="faq-answer">
+              The application is designed to operate completely offline once the required Android tooling, SDK platforms, and Gradle project dependencies are available on your local drive.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false">
+              <span>What languages are supported?</span>
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            <div class="faq-answer">
+              AstraIDE includes built-in syntax highlighting and formatting support for Kotlin, Java, XML, Gradle (Groovy/Kotlin DSL), JSON, and Markdown editing.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false">
+              <span>Is AstraIDE open source?</span>
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            <div class="faq-answer">
+              Yes. AstraIDE is completely open source and released under the permissive MIT License. Contributions, bug reports, and pull requests are welcomed on GitHub.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         14. DOWNLOAD CALL TO ACTION
+         ====================================================================== -->
+    <section class="section section-surface" aria-labelledby="cta-heading">
+      <div class="container">
+        <div class="cta-box">
+          <h2 id="cta-heading" class="cta-title">Build Android apps without giving your RAM to the IDE.</h2>
+          <p class="cta-subtext">Download AstraIDE for Windows or explore the complete open-source codebase on GitHub.</p>
+
+          <div class="cta-actions">
+            <a href="https://github.com/jojin1709/AstraIDE/releases" class="btn btn-primary btn-lg" target="_blank" rel="noopener noreferrer">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              <span>Download for Windows</span>
+            </a>
+
+            <a href="https://github.com/jojin1709/AstraIDE" class="btn btn-secondary btn-lg" target="_blank" rel="noopener noreferrer">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+              </svg>
+              <span>View Source on GitHub</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ======================================================================
+       15. FOOTER
+       ====================================================================== -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="footer-logo">
+            <img src="./assets/logo.svg" alt="AstraIDE Logo" width="24" height="24">
+            <span>AstraIDE</span>
+          </div>
+          <p class="footer-desc">
+            Lightweight Android Development Environment for Windows. Engineered with Rust and Tauri 2 for memory efficiency and instant responsiveness.
+          </p>
+        </div>
+
+        <div class="footer-links-group">
+          <div class="footer-col">
+            <h5>Project</h5>
+            <ul>
+              <li><a href="https://github.com/jojin1709/AstraIDE" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+              <li><a href="https://github.com/jojin1709/AstraIDE/releases" target="_blank" rel="noopener noreferrer">Releases</a></li>
+              <li><a href="https://github.com/jojin1709/AstraIDE/issues" target="_blank" rel="noopener noreferrer">Issues</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <h5>Documentation</h5>
+            <ul>
+              <li><a href="#features">Features</a></li>
+              <li><a href="#architecture">Architecture</a></li>
+              <li><a href="#quickstart">Quick Start</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <h5>Governance</h5>
+            <ul>
+              <li><a href="https://github.com/jojin1709/AstraIDE/blob/main/SECURITY.md" target="_blank" rel="noopener noreferrer">Security</a></li>
+              <li><a href="https://github.com/jojin1709/AstraIDE/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">License</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>
+          <span>Developed by <strong class="footer-dev">JOJIN JOHN</strong></span>
+        </div>
+        <div>
+          <span>&copy; 2026 JOJIN JOHN. Released under the MIT License.</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Lightbox Modal for Fullscreen Screenshot Zoom -->
+  <div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="Screenshot lightbox modal">
+    <img id="lightbox-img" src="" alt="Zoomed AstraIDE screenshot preview">
+  </div>
+
+  <!-- Vanilla Script -->
+  <script src="./script.js"></script>
+</body>
+</html>

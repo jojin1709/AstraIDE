@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="fav-cyan-streak" x1="120" y1="380" x2="480" y2="180" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0066ff"/>
+      <stop offset="45%" stop-color="#00d4ff"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+    <linearGradient id="fav-right-leg" x1="280" y1="280" x2="420" y2="440" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0284c7"/>
+      <stop offset="100%" stop-color="#00d4ff"/>
+    </linearGradient>
+    <linearGradient id="fav-fold" x1="120" y1="410" x2="160" y2="380" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0052cc"/>
+      <stop offset="100%" stop-color="#00d4ff"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="#ffffff"/>
+  <rect width="510" height="510" x="1" y="1" rx="111" stroke="#e2e8f0" stroke-width="2"/>
+
+  <!-- Dark Geometric Left Leg & Apex -->
+  <path d="M 238 98 L 78 392 L 126 418 L 244 202 L 302 242 L 318 214 Z" fill="#1e293b" />
+  
+  <!-- Lower Fold on Left Leg -->
+  <path d="M 126 418 L 78 392 L 168 368 Z" fill="url(#fav-fold)" />
+
+  <!-- Secondary Right Leg Element -->
+  <path d="M 282 308 L 344 424 L 434 424 L 362 268 Z" fill="url(#fav-right-leg)" />
+
+  <!-- Diagonal Electric Blue / Cyan Orbital Streak -->
+  <polygon points="120,402 468,188 382,234 168,368" fill="url(#fav-cyan-streak)" />
+</svg>
