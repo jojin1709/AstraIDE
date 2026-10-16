@@ -5,7 +5,7 @@
 
 <img src="./assets/icon.png" alt="AstraIDE Logo" width="128" height="128" />
 
-# ⚡ AstraIDE
+# AstraIDE
 
 ### Lightweight Android Development Environment for Windows
 
