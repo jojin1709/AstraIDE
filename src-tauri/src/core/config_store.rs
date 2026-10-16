@@ -20,6 +20,12 @@ pub struct AstraIdeConfig {
     pub editor_font_size: u32,
     pub editor_tab_size: u32,
     pub editor_word_wrap: bool,
+    #[serde(default)]
+    pub editor_font_family: Option<String>,
+    #[serde(default)]
+    pub gradle_default_task: Option<String>,
+    #[serde(default)]
+    pub logcat_buffer_size: Option<usize>,
     pub terminal_shell: String, // "powershell" or "cmd"
     pub telemetry_enabled: bool,
     pub auto_save: bool,
@@ -36,6 +42,9 @@ impl Default for AstraIdeConfig {
             editor_font_size: 14,
             editor_tab_size: 4,
             editor_word_wrap: false,
+            editor_font_family: None,
+            gradle_default_task: None,
+            logcat_buffer_size: None,
             terminal_shell: "powershell".to_string(),
             telemetry_enabled: false, // Strictly disabled by default
             auto_save: true,

@@ -89,7 +89,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
         flex: 1,
         padding: "40px 20px",
         overflowY: "auto",
-        background: "radial-gradient(ellipse at top, #111a2e 0%, var(--bg-primary) 70%)",
+        background: "var(--bg-spotlight)",
       }}
     >
       <div style={{ width: "100%", maxWidth: "980px" }}>
@@ -106,7 +106,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
         >
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
             <img
-              src="/favicon.png"
+              src="/icon.png"
               alt="AstraIDE"
               style={{
                 width: "48px",

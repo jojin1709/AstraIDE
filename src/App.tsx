@@ -60,6 +60,7 @@ import { GitPanel } from "./panels/GitPanel";
 import { NewProjectModal } from "./panels/NewProjectModal";
 import { SettingsModal } from "./panels/SettingsModal";
 import { CommandPalette, CommandItem } from "./panels/CommandPalette";
+import { ContextMenu } from "./panels/ContextMenu";
 
 export const App: React.FC = () => {
   // App Config
@@ -121,13 +122,30 @@ export const App: React.FC = () => {
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState<boolean>(false);
   const [screenshotModalImage, setScreenshotModalImage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
 
-  // Load config & initial environment on start
+  // Global right-click context menu interceptor (blocks default browser menu)
+  useEffect(() => {
+    const handleContextMenu = (e: MouseEvent) => {
+      e.preventDefault();
+      setContextMenu({ x: e.clientX, y: e.clientY });
+    };
+    window.addEventListener("contextmenu", handleContextMenu);
+    return () => window.removeEventListener("contextmenu", handleContextMenu);
+  }, []);
+
+  // Load config & initial environment on start with smooth staggering (eliminates initial frame lag)
   useEffect(() => {
     loadConfig();
-    refreshEnvironment();
-    refreshDevices();
-    refreshResources();
+
+    const t1 = setTimeout(() => {
+      refreshDevices();
+      refreshResources();
+    }, 80);
+
+    const t2 = setTimeout(() => {
+      refreshEnvironment();
+    }, 220);
 
     // Listen to background build lines
     const unlistenBuild = listenEvent<GradleBuildLineEvent>("gradle-build-line", (ev) => {
@@ -148,6 +166,8 @@ export const App: React.FC = () => {
     });
 
     return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
       unlistenBuild.then((u) => u());
       unlistenLogcat.then((u) => u());
       unlistenTerminal.then((u) => u());
@@ -1367,7 +1387,36 @@ export const App: React.FC = () => {
         config={config}
         onClose={() => setIsSettingsModalOpen(false)}
         onSave={handleSaveConfig}
+        detectedSdkPath={envReport?.android_sdk.path}
+        detectedJdkPath={envReport?.java.path}
       />
+
+      {contextMenu && (
+        <ContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          onClose={() => setContextMenu(null)}
+          onRun={() => {
+            if (selectedDeviceSerial) {
+              handleRunAppOnDevice(selectedDeviceSerial);
+            } else {
+              handleExecuteBuild(config.gradle_default_task || "assembleDebug");
+            }
+          }}
+          onBuild={() => handleExecuteBuild(config.gradle_default_task || "assembleDebug")}
+          onClean={handleCleanProject}
+          onSave={handleSaveCurrentFile}
+          onOpenFolder={handleOpenProject}
+          onToggleTheme={() =>
+            handleSaveConfig({ ...config, theme: config.theme === "dark" ? "light" : "dark" })
+          }
+          onOpenSettings={() => setIsSettingsModalOpen(true)}
+          onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+          onRefreshEnv={refreshEnvironment}
+          isDarkMode={config.theme !== "light"}
+          hasActiveFile={activeTabId !== null}
+        />
+      )}
 
       <CommandPalette
         isOpen={isCommandPaletteOpen}

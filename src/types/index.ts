@@ -248,6 +248,9 @@ export interface AstraIdeConfig {
   editor_font_size: number;
   editor_tab_size: number;
   editor_word_wrap: boolean;
+  editor_font_family?: string;
+  gradle_default_task?: string;
+  logcat_buffer_size?: number;
   terminal_shell: string;
   telemetry_enabled: boolean;
   auto_save: boolean;
