@@ -204,6 +204,20 @@ impl ApkAnalyzer {
                             activities.push(m.as_str().to_string());
                         }
                     }
+
+                    let srv_re = Regex::new(r"service:\s+name='([^']+)'").unwrap();
+                    for caps in srv_re.captures_iter(&text) {
+                        if let Some(m) = caps.get(1) {
+                            services.push(m.as_str().to_string());
+                        }
+                    }
+
+                    let rec_re = Regex::new(r"receiver:\s+name='([^']+)'").unwrap();
+                    for caps in rec_re.captures_iter(&text) {
+                        if let Some(m) = caps.get(1) {
+                            receivers.push(m.as_str().to_string());
+                        }
+                    }
                 }
             }
         }

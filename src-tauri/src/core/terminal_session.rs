@@ -23,6 +23,7 @@ pub struct TerminalCommandResult {
 }
 
 pub struct TerminalManager {
+    #[allow(dead_code)]
     running_processes: Mutex<HashMap<String, Arc<AtomicBool>>>,
 }
 
