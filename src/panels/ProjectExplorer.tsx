@@ -16,6 +16,7 @@ import {
   FilePlus2,
 } from "lucide-react";
 import { FileNode } from "../types";
+import { getFolderIcon, getFileIconByName } from "../utils/fileIcons";
 
 interface ProjectExplorerProps {
   rootNode: FileNode | null;
@@ -60,32 +61,9 @@ export const ProjectExplorer: React.FC<ProjectExplorerProps> = ({
 
   const getFileIcon = (node: FileNode) => {
     if (node.is_dir) {
-      return expandedPaths[node.path] ? (
-        <FolderOpen size={15} color="#38bdf8" />
-      ) : (
-        <Folder size={15} color="#38bdf8" />
-      );
+      return getFolderIcon(node.name, Boolean(expandedPaths[node.path]));
     }
-
-    const ext = node.extension?.toLowerCase();
-    switch (ext) {
-      case "kt":
-      case "kts":
-        return <FileCode size={15} color="#a855f7" />;
-      case "java":
-        return <FileCode size={15} color="#f97316" />;
-      case "xml":
-        return <FileCode size={15} color="#10b981" />;
-      case "gradle":
-      case "properties":
-        return <FileCode size={15} color="#0284c7" />;
-      case "json":
-        return <FileCode size={15} color="#eab308" />;
-      case "md":
-        return <FileText size={15} color="#94a3b8" />;
-      default:
-        return <File size={15} color="#64748b" />;
-    }
+    return getFileIconByName(node.name);
   };
 
   const handleCreateSubmit = (e: React.FormEvent) => {

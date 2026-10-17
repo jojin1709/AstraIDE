@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import {
+  Folder,
   FolderOpen,
   PlusSquare,
   Smartphone,
@@ -477,17 +478,20 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
                       e.currentTarget.style.background = "var(--bg-primary)";
                     }}
                   >
-                    <div
-                      style={{
-                        fontSize: "13px",
-                        fontWeight: 600,
-                        color: "var(--text-primary)",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {p.name}
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <Folder size={14} color="var(--accent-primary)" style={{ flexShrink: 0 }} />
+                      <div
+                        style={{
+                          fontSize: "13px",
+                          fontWeight: 600,
+                          color: "var(--text-primary)",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {p.name}
+                      </div>
                     </div>
                     <div
                       style={{

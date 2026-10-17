@@ -11,6 +11,7 @@ import {
   Terminal,
   Activity,
   Layers,
+  Cpu,
   Package,
   HardDrive,
   GitBranch,
@@ -66,6 +67,7 @@ import { SplashScreen } from "./panels/SplashScreen";
 import { UpdateCenterModal } from "./panels/UpdateCenterModal";
 import { CommandPalette, CommandItem } from "./panels/CommandPalette";
 import { ContextMenu } from "./panels/ContextMenu";
+import { getFileIconByName } from "./utils/fileIcons";
 
 export const App: React.FC = () => {
   // App Config
@@ -383,6 +385,14 @@ export const App: React.FC = () => {
       // Load git & storage
       refreshGit(projPath);
       refreshStorage();
+
+      // Save to recent projects
+      const projName = projPath.split("\\").pop() || projPath.split("/").pop() || projPath;
+      const updatedRecent = [
+        { name: projName, path: projPath, last_opened: new Date().toISOString() },
+        ...config.recent_projects.filter((p) => p.path !== projPath),
+      ].slice(0, 10);
+      handleSaveConfig({ ...config, recent_projects: updatedRecent });
 
       // Automatically open MainActivity or AndroidManifest if present
       findAndOpenKeyFiles(tree);
@@ -1273,6 +1283,9 @@ export const App: React.FC = () => {
                     onClick={() => setActiveTabId(tab.id)}
                     className={`editor-tab ${activeTabId === tab.id ? "active" : ""}`}
                   >
+                    <span style={{ display: "inline-flex", alignItems: "center", marginRight: "6px" }}>
+                      {getFileIconByName(tab.name, 14)}
+                    </span>
                     <span>{tab.name}</span>
                     {tab.isDirty && <div className="tab-dirty-indicator" title="Unsaved changes" />}
                     <button
@@ -1497,6 +1510,7 @@ export const App: React.FC = () => {
       <footer className="app-statusbar">
         <div className="statusbar-left">
           <div className="statusbar-item">
+            <Smartphone size={13} style={{ opacity: 0.8 }} />
             <div className={`device-dot ${devices.length > 0 ? "" : "none"}`} />
             <span>
               {devices.length === 0
@@ -1524,6 +1538,7 @@ export const App: React.FC = () => {
           )}
 
           <div className="statusbar-item">
+            <Cpu size={13} color="var(--accent-primary)" />
             <span>AstraIDE Core: Rust</span>
           </div>
         </div>

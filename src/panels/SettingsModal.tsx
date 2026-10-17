@@ -17,6 +17,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { AstraIdeConfig } from "../types";
+import { invokeCommand } from "../services/tauriBridge";
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -53,6 +54,28 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const handleClearCache = () => {
     setCacheCleared(true);
     setTimeout(() => setCacheCleared(false), 2500);
+  };
+
+  const handleBrowseSdk = async () => {
+    try {
+      const picked = await invokeCommand<string | null>("pick_project_folder");
+      if (picked) {
+        setFormData((prev) => ({ ...prev, custom_sdk_path: picked }));
+      }
+    } catch (e) {
+      console.warn("Folder picker error:", e);
+    }
+  };
+
+  const handleBrowseJdk = async () => {
+    try {
+      const picked = await invokeCommand<string | null>("pick_project_folder");
+      if (picked) {
+        setFormData((prev) => ({ ...prev, custom_jdk_path: picked }));
+      }
+    } catch (e) {
+      console.warn("Folder picker error:", e);
+    }
   };
 
   const handleResetDefaults = () => {
@@ -366,16 +389,28 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       </button>
                     )}
                   </div>
-                  <input
-                    type="text"
-                    placeholder="Leave empty for auto-detection (ANDROID_HOME or AppData\Local\Android\Sdk)"
-                    value={formData.custom_sdk_path || ""}
-                    onChange={(e) =>
-                      setFormData({ ...formData, custom_sdk_path: e.target.value || undefined })
-                    }
-                    className="form-input"
-                    style={{ fontFamily: "var(--font-mono)", fontSize: "12px" }}
-                  />
+                  <div style={{ display: "flex", gap: "8px" }}>
+                    <input
+                      type="text"
+                      placeholder="Leave empty for auto-detection (ANDROID_HOME or AppData\Local\Android\Sdk)"
+                      value={formData.custom_sdk_path || ""}
+                      onChange={(e) =>
+                        setFormData({ ...formData, custom_sdk_path: e.target.value || undefined })
+                      }
+                      className="form-input"
+                      style={{ fontFamily: "var(--font-mono)", fontSize: "12px", flex: 1 }}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleBrowseSdk}
+                      className="btn-toolbar"
+                      title="Browse SDK Directory"
+                      style={{ padding: "6px 12px", whiteSpace: "nowrap" }}
+                    >
+                      <FolderOpen size={14} />
+                      Browse...
+                    </button>
+                  </div>
                   <span className="form-helper">
                     Must contain platform-tools (adb.exe), build-tools, and platforms.
                   </span>
@@ -401,16 +436,28 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       </button>
                     )}
                   </div>
-                  <input
-                    type="text"
-                    placeholder="Leave empty for auto-detection (JAVA_HOME or system PATH)"
-                    value={formData.custom_jdk_path || ""}
-                    onChange={(e) =>
-                      setFormData({ ...formData, custom_jdk_path: e.target.value || undefined })
-                    }
-                    className="form-input"
-                    style={{ fontFamily: "var(--font-mono)", fontSize: "12px" }}
-                  />
+                  <div style={{ display: "flex", gap: "8px" }}>
+                    <input
+                      type="text"
+                      placeholder="Leave empty for auto-detection (JAVA_HOME or system PATH)"
+                      value={formData.custom_jdk_path || ""}
+                      onChange={(e) =>
+                        setFormData({ ...formData, custom_jdk_path: e.target.value || undefined })
+                      }
+                      className="form-input"
+                      style={{ fontFamily: "var(--font-mono)", fontSize: "12px", flex: 1 }}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleBrowseJdk}
+                      className="btn-toolbar"
+                      title="Browse JDK Directory"
+                      style={{ padding: "6px 12px", whiteSpace: "nowrap" }}
+                    >
+                      <FolderOpen size={14} />
+                      Browse...
+                    </button>
+                  </div>
                   <span className="form-helper">
                     JDK 17 or 21 directory containing bin\java.exe.
                   </span>

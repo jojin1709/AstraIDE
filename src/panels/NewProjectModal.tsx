@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { PlusSquare, X, FolderOpen, Layers, Check } from "lucide-react";
 import { CreateProjectRequest } from "../types";
+import { invokeCommand } from "../services/tauriBridge";
 
 interface NewProjectModalProps {
   isOpen: boolean;
@@ -22,6 +23,17 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
   const [targetSdk, setTargetSdk] = useState<number>(34);
   const [language, setLanguage] = useState<string>("kotlin");
   const [template, setTemplate] = useState<string>("empty");
+
+  const handleBrowseLocation = async () => {
+    try {
+      const picked = await invokeCommand<string | null>("pick_project_folder");
+      if (picked) {
+        setLocation(picked);
+      }
+    } catch (e) {
+      console.warn("Folder picker error:", e);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -131,13 +143,26 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
             {/* Location */}
             <div className="form-group">
               <label className="form-label">Project Location</label>
-              <input
-                type="text"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                className="form-input"
-                required
-              />
+              <div style={{ display: "flex", gap: "8px" }}>
+                <input
+                  type="text"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  className="form-input"
+                  style={{ flex: 1 }}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={handleBrowseLocation}
+                  className="btn-toolbar"
+                  title="Browse folder via Windows Explorer"
+                  style={{ padding: "6px 12px", whiteSpace: "nowrap" }}
+                >
+                  <FolderOpen size={14} />
+                  Browse...
+                </button>
+              </div>
               <span className="form-helper">
                 The project directory will be created at: {location}\{name}
               </span>
