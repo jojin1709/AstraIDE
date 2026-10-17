@@ -19,9 +19,12 @@ import {
   Loader2,
   Box,
   Layers,
+  Plus,
 } from "lucide-react";
 import { AndroidDevice, AvdInfo } from "../types";
 import { invokeCommand } from "../services/tauriBridge";
+import { CreateAvdModal } from "./CreateAvdModal";
+import { DeviceMirrorModal } from "./DeviceMirrorModal";
 
 interface DeviceManagerProps {
   devices: AndroidDevice[];
@@ -51,6 +54,8 @@ export const DeviceManager: React.FC<DeviceManagerProps> = ({
   const [avds, setAvds] = useState<AvdInfo[]>([]);
   const [isLaunchingAvd, setIsLaunchingAvd] = useState<string | null>(null);
   const [launchMessage, setLaunchMessage] = useState<string | null>(null);
+  const [isCreateAvdOpen, setIsCreateAvdOpen] = useState<boolean>(false);
+  const [mirroringDevice, setMirroringDevice] = useState<AndroidDevice | null>(null);
 
   const refreshAvds = useCallback(async () => {
     try {
@@ -326,8 +331,17 @@ export const DeviceManager: React.FC<DeviceManagerProps> = ({
                         onClick={(e) => e.stopPropagation()}
                       >
                         <button
-                          onClick={() => onRunOnDevice(device.serial)}
+                          onClick={() => setMirroringDevice(device)}
                           className="btn-toolbar primary"
+                          style={{ fontSize: "11px", padding: "4px 8px" }}
+                          title="Mirror & control device screen"
+                        >
+                          <Monitor size={12} />
+                          Mirror Screen
+                        </button>
+                        <button
+                          onClick={() => onRunOnDevice(device.serial)}
+                          className="btn-toolbar"
                           style={{ fontSize: "11px", padding: "4px 8px" }}
                           title="Build & Run on this device"
                         >
@@ -397,29 +411,52 @@ export const DeviceManager: React.FC<DeviceManagerProps> = ({
               <Monitor size={12} />
               Android Virtual Devices ({avds.length})
             </div>
-            <button
-              onClick={refreshAvds}
-              className="icon-btn"
-              style={{ width: "20px", height: "20px" }}
-              title="Refresh AVDs"
-            >
-              <RefreshCw size={11} />
-            </button>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <button
+                onClick={() => setIsCreateAvdOpen(true)}
+                className="btn-toolbar primary"
+                style={{ fontSize: "11px", padding: "2px 8px", height: "24px" }}
+                title="Create Custom Virtual Device / Emulator"
+              >
+                <Plus size={12} />
+                New AVD
+              </button>
+              <button
+                onClick={refreshAvds}
+                className="icon-btn"
+                style={{ width: "20px", height: "20px" }}
+                title="Refresh AVDs"
+              >
+                <RefreshCw size={11} />
+              </button>
+            </div>
           </div>
 
           {avds.length === 0 ? (
             <div
               style={{
-                padding: "14px",
+                padding: "16px 14px",
                 textAlign: "center",
                 background: "var(--bg-primary)",
                 border: "1px dashed var(--border-medium)",
                 borderRadius: "var(--radius-lg)",
                 color: "var(--text-muted)",
                 fontSize: "11px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "8px",
               }}
             >
-              No AVD emulators found in ~/.android/avd.
+              <div>No AVD emulators found in ~/.android/avd.</div>
+              <button
+                onClick={() => setIsCreateAvdOpen(true)}
+                className="btn-toolbar primary"
+                style={{ fontSize: "11px", padding: "4px 10px" }}
+              >
+                <Plus size={12} />
+                Create New Emulator
+              </button>
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
@@ -545,6 +582,16 @@ export const DeviceManager: React.FC<DeviceManagerProps> = ({
             <div>Play: <strong>Sandboxed</strong></div>
             <div>Allocator: <strong>Hardened</strong></div>
           </div>
+
+          <button
+            onClick={() => setIsCreateAvdOpen(true)}
+            className="btn-toolbar primary"
+            style={{ fontSize: "11px", padding: "6px 10px", justifyContent: "center" }}
+            title="Create a new virtual device with GrapheneOS hardening enabled"
+          >
+            <Plus size={12} />
+            Create GrapheneOS Virtual Device
+          </button>
         </div>
 
         {/* SECTION 4: Built-in AstraIDE Core Plugins */}
@@ -585,6 +632,21 @@ export const DeviceManager: React.FC<DeviceManagerProps> = ({
           </div>
         </div>
       </div>
+
+      <CreateAvdModal
+        isOpen={isCreateAvdOpen}
+        onClose={() => setIsCreateAvdOpen(false)}
+        onAvdCreated={() => {
+          refreshAvds();
+          onRefreshDevices();
+        }}
+      />
+
+      <DeviceMirrorModal
+        isOpen={!!mirroringDevice}
+        device={mirroringDevice}
+        onClose={() => setMirroringDevice(null)}
+      />
     </div>
   );
 };

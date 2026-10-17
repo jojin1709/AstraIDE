@@ -57,6 +57,12 @@ pub fn run() {
             commands::pick_apk_file,
             commands::list_avds,
             commands::launch_avd,
+            commands::list_system_images,
+            commands::create_custom_avd,
+            commands::device_touch_tap,
+            commands::device_touch_swipe,
+            commands::device_send_key,
+            commands::device_send_text,
         ])
         .run(tauri::generate_context!())
         .expect("error while running AstraIDE application");

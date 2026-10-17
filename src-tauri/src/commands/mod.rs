@@ -1,4 +1,6 @@
-use crate::core::adb_client::{AdbClient, AdbCommandResult, AndroidDevice, AvdInfo};
+use crate::core::adb_client::{
+    AdbClient, AdbCommandResult, AndroidDevice, AvdInfo, CreateAvdRequest, SystemImageInfo,
+};
 use crate::core::apk_analyzer::{ApkAnalysisReport, ApkAnalyzer};
 use crate::core::config_store::{AstraIdeConfig, ConfigStore};
 use crate::core::env_detector::{AndroidEnvironmentReport, EnvDetector, GpuReport};
@@ -350,6 +352,74 @@ pub async fn list_avds(custom_sdk: Option<String>) -> Vec<AvdInfo> {
 #[tauri::command]
 pub async fn launch_avd(custom_sdk: Option<String>, avd_name: String) -> Result<String, String> {
     tokio::task::spawn_blocking(move || AdbClient::launch_avd(custom_sdk.as_deref(), &avd_name))
+        .await
+        .map_err(|e| format!("Task execution error: {}", e))?
+}
+
+#[tauri::command]
+pub async fn list_system_images(custom_sdk: Option<String>) -> Vec<SystemImageInfo> {
+    tokio::task::spawn_blocking(move || AdbClient::list_system_images(custom_sdk.as_deref()))
+        .await
+        .unwrap_or_default()
+}
+
+#[tauri::command]
+pub async fn create_custom_avd(
+    custom_sdk: Option<String>,
+    req: CreateAvdRequest,
+) -> Result<String, String> {
+    tokio::task::spawn_blocking(move || AdbClient::create_avd(custom_sdk.as_deref(), req))
+        .await
+        .map_err(|e| format!("Task execution error: {}", e))?
+}
+
+#[tauri::command]
+pub async fn device_touch_tap(
+    custom_sdk: Option<String>,
+    serial: String,
+    x: i32,
+    y: i32,
+) -> Result<(), String> {
+    tokio::task::spawn_blocking(move || AdbClient::send_touch_tap(custom_sdk.as_deref(), &serial, x, y))
+        .await
+        .map_err(|e| format!("Task execution error: {}", e))?
+}
+
+#[tauri::command]
+pub async fn device_touch_swipe(
+    custom_sdk: Option<String>,
+    serial: String,
+    x1: i32,
+    y1: i32,
+    x2: i32,
+    y2: i32,
+    duration_ms: i32,
+) -> Result<(), String> {
+    tokio::task::spawn_blocking(move || {
+        AdbClient::send_touch_swipe(custom_sdk.as_deref(), &serial, x1, y1, x2, y2, duration_ms)
+    })
+    .await
+    .map_err(|e| format!("Task execution error: {}", e))?
+}
+
+#[tauri::command]
+pub async fn device_send_key(
+    custom_sdk: Option<String>,
+    serial: String,
+    keycode: i32,
+) -> Result<(), String> {
+    tokio::task::spawn_blocking(move || AdbClient::send_key_event(custom_sdk.as_deref(), &serial, keycode))
+        .await
+        .map_err(|e| format!("Task execution error: {}", e))?
+}
+
+#[tauri::command]
+pub async fn device_send_text(
+    custom_sdk: Option<String>,
+    serial: String,
+    text: String,
+) -> Result<(), String> {
+    tokio::task::spawn_blocking(move || AdbClient::send_input_text(custom_sdk.as_deref(), &serial, &text))
         .await
         .map_err(|e| format!("Task execution error: {}", e))?
 }

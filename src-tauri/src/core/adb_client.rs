@@ -32,6 +32,28 @@ pub struct AvdInfo {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SystemImageInfo {
+    pub tag: String,
+    pub api_level: String,
+    pub abi: String,
+    pub relative_path: String,
+    pub full_path: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CreateAvdRequest {
+    pub name: String,
+    pub device_profile: String,
+    pub system_image_path: String,
+    pub abi: String,
+    pub ram_mb: u32,
+    pub screen_width: u32,
+    pub screen_height: u32,
+    pub screen_density: u32,
+    pub is_graphene_os: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AdbCommandResult {
     pub success: bool,
     pub stdout: String,
@@ -554,6 +576,188 @@ impl AdbClient {
             .map_err(|e| format!("Failed to spawn Android emulator process: {}", e))?;
 
         Ok(format!("Emulator '{}' launched with Direct3D / Host GPU acceleration.", avd_name))
+    }
+
+    pub fn list_system_images(custom_sdk: Option<&str>) -> Vec<SystemImageInfo> {
+        let mut sdk_roots = Vec::new();
+        if let Some(sdk) = custom_sdk {
+            sdk_roots.push(PathBuf::from(sdk));
+        }
+        if let Ok(sdk_env) = std::env::var("ANDROID_HOME") {
+            sdk_roots.push(PathBuf::from(sdk_env));
+        }
+        if let Ok(local) = std::env::var("LOCALAPPDATA") {
+            sdk_roots.push(PathBuf::from(local).join("Android").join("Sdk"));
+        }
+
+        let mut results = Vec::new();
+        for root in sdk_roots {
+            let sys_dir = root.join("system-images");
+            if !sys_dir.exists() {
+                continue;
+            }
+
+            if let Ok(api_entries) = std::fs::read_dir(&sys_dir) {
+                for api_entry in api_entries.flatten() {
+                    let api_path = api_entry.path();
+                    if !api_path.is_dir() { continue; }
+                    let api_name = api_path.file_name().unwrap_or_default().to_string_lossy().to_string();
+
+                    if let Ok(tag_entries) = std::fs::read_dir(&api_path) {
+                        for tag_entry in tag_entries.flatten() {
+                            let tag_path = tag_entry.path();
+                            if !tag_path.is_dir() { continue; }
+                            let tag_name = tag_path.file_name().unwrap_or_default().to_string_lossy().to_string();
+
+                            if let Ok(abi_entries) = std::fs::read_dir(&tag_path) {
+                                for abi_entry in abi_entries.flatten() {
+                                    let abi_path = abi_entry.path();
+                                    if !abi_path.is_dir() { continue; }
+                                    let abi_name = abi_path.file_name().unwrap_or_default().to_string_lossy().to_string();
+
+                                    let rel = format!("system-images/{}/{}/{}/", api_name, tag_name, abi_name);
+                                    results.push(SystemImageInfo {
+                                        tag: tag_name.clone(),
+                                        api_level: api_name.replace("android-", "API "),
+                                        abi: abi_name,
+                                        relative_path: rel,
+                                        full_path: abi_path.to_string_lossy().to_string(),
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        results
+    }
+
+    pub fn create_avd(_custom_sdk: Option<&str>, req: CreateAvdRequest) -> Result<String, String> {
+        let user_profile = std::env::var("USERPROFILE").map_err(|e| format!("Missing USERPROFILE: {}", e))?;
+        let avd_root = PathBuf::from(&user_profile).join(".android").join("avd");
+        std::fs::create_dir_all(&avd_root).map_err(|e| format!("Failed to create AVD directory: {}", e))?;
+
+        let safe_name = req.name.trim().replace(' ', "_");
+        let avd_folder = avd_root.join(format!("{}.avd", safe_name));
+        std::fs::create_dir_all(&avd_folder).map_err(|e| format!("Failed to create emulator folder: {}", e))?;
+
+        let ini_file = avd_root.join(format!("{}.ini", safe_name));
+        let ini_content = format!(
+            "avd.ini.encoding=UTF-8\r\npath={}\r\npath.rel=avd\\{}.avd\r\ntarget=android-0\r\n",
+            avd_folder.to_string_lossy(),
+            safe_name
+        );
+        std::fs::write(&ini_file, ini_content).map_err(|e| format!("Failed to write {}.ini: {}", safe_name, e))?;
+
+        let config_file = avd_folder.join("config.ini");
+        let tag_id = if req.is_graphene_os { "graphene_os" } else { "google_apis" };
+        let tag_display = if req.is_graphene_os { "GrapheneOS Hardened" } else { "Google APIs" };
+
+        let config_content = format!(
+            "PlayStore.enabled=no\r\n\
+            abi.type={}\r\n\
+            avd.id={}\r\n\
+            avd.ini.encoding=UTF-8\r\n\
+            avd.name={}\r\n\
+            disk.dataPartition.size=4096M\r\n\
+            fastboot.forceChosenSnapshotBoot=no\r\n\
+            fastboot.forceColdBoot=no\r\n\
+            fastboot.forceFastBoot=yes\r\n\
+            hw.accelerometer=yes\r\n\
+            hw.audioInput=yes\r\n\
+            hw.battery=yes\r\n\
+            hw.camera.back=virtualscene\r\n\
+            hw.camera.front=emulated\r\n\
+            hw.cpu.ncore=4\r\n\
+            hw.dPad=no\r\n\
+            hw.device.name={}\r\n\
+            hw.gps=yes\r\n\
+            hw.gpu.enabled=yes\r\n\
+            hw.gpu.mode=host\r\n\
+            hw.initialOrientation=portrait\r\n\
+            hw.keyboard=yes\r\n\
+            hw.lcd.density={}\r\n\
+            hw.lcd.height={}\r\n\
+            hw.lcd.width={}\r\n\
+            hw.mainKeys=no\r\n\
+            hw.ramSize={}\r\n\
+            hw.sdCard=yes\r\n\
+            image.sysdir.1={}\r\n\
+            tag.display={}\r\n\
+            tag.id={}\r\n",
+            req.abi,
+            safe_name,
+            safe_name,
+            req.device_profile,
+            req.screen_density,
+            req.screen_height,
+            req.screen_width,
+            req.ram_mb,
+            req.system_image_path,
+            tag_display,
+            tag_id
+        );
+        std::fs::write(&config_file, config_content).map_err(|e| format!("Failed to write config.ini: {}", e))?;
+
+        Ok(format!("Custom Virtual Device '{}' created successfully! Ready to run.", safe_name))
+    }
+
+    pub fn send_touch_tap(custom_sdk: Option<&str>, serial: &str, x: i32, y: i32) -> Result<(), String> {
+        let adb = Self::get_adb_binary(custom_sdk)?;
+        hidden_command(&adb)
+            .args(["-s", serial, "shell", "input", "tap", &x.to_string(), &y.to_string()])
+            .output()
+            .map_err(|e| format!("Failed to send tap: {}", e))?;
+        Ok(())
+    }
+
+    pub fn send_touch_swipe(
+        custom_sdk: Option<&str>,
+        serial: &str,
+        x1: i32,
+        y1: i32,
+        x2: i32,
+        y2: i32,
+        duration_ms: i32,
+    ) -> Result<(), String> {
+        let adb = Self::get_adb_binary(custom_sdk)?;
+        hidden_command(&adb)
+            .args([
+                "-s",
+                serial,
+                "shell",
+                "input",
+                "swipe",
+                &x1.to_string(),
+                &y1.to_string(),
+                &x2.to_string(),
+                &y2.to_string(),
+                &duration_ms.to_string(),
+            ])
+            .output()
+            .map_err(|e| format!("Failed to send swipe: {}", e))?;
+        Ok(())
+    }
+
+    pub fn send_key_event(custom_sdk: Option<&str>, serial: &str, keycode: i32) -> Result<(), String> {
+        let adb = Self::get_adb_binary(custom_sdk)?;
+        hidden_command(&adb)
+            .args(["-s", serial, "shell", "input", "keyevent", &keycode.to_string()])
+            .output()
+            .map_err(|e| format!("Failed to send keyevent: {}", e))?;
+        Ok(())
+    }
+
+    pub fn send_input_text(custom_sdk: Option<&str>, serial: &str, text: &str) -> Result<(), String> {
+        let adb = Self::get_adb_binary(custom_sdk)?;
+        let sanitized = text.replace(' ', "%s");
+        hidden_command(&adb)
+            .args(["-s", serial, "shell", "input", "text", &sanitized])
+            .output()
+            .map_err(|e| format!("Failed to send text: {}", e))?;
+        Ok(())
     }
 }
 

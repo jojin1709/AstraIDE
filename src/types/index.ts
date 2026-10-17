@@ -78,6 +78,26 @@ export interface AvdInfo {
   is_running: boolean;
 }
 
+export interface SystemImageInfo {
+  tag: string;
+  api_level: string;
+  abi: string;
+  relative_path: string;
+  full_path: string;
+}
+
+export interface CreateAvdRequest {
+  name: string;
+  device_profile: string;
+  system_image_path: string;
+  abi: string;
+  ram_mb: number;
+  screen_width: number;
+  screen_height: number;
+  screen_density: number;
+  is_graphene_os: boolean;
+}
+
 export interface AdbCommandResult {
   success: boolean;
   stdout: string;
