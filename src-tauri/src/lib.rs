@@ -53,6 +53,8 @@ pub fn run() {
             commands::detect_gpus,
             commands::check_for_updates,
             commands::download_and_install_update,
+            commands::pick_project_folder,
+            commands::pick_apk_file,
         ])
         .run(tauri::generate_context!())
         .expect("error while running AstraIDE application");

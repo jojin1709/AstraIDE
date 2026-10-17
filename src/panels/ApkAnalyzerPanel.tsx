@@ -9,8 +9,10 @@ import {
   Smartphone,
   ExternalLink,
   Upload,
+  FolderOpen,
 } from "lucide-react";
 import { ApkAnalysisReport } from "../types";
+import { invokeCommand } from "../services/tauriBridge";
 
 interface ApkAnalyzerPanelProps {
   report: ApkAnalysisReport | null;
@@ -22,6 +24,18 @@ export const ApkAnalyzerPanel: React.FC<ApkAnalyzerPanelProps> = ({
   onSelectApkPath,
 }) => {
   const [inputPath, setInputPath] = useState<string>("");
+
+  const handleBrowseApk = async () => {
+    try {
+      const picked = await invokeCommand<string | null>("pick_apk_file");
+      if (picked) {
+        setInputPath(picked);
+        onSelectApkPath(picked);
+      }
+    } catch (e) {
+      console.warn("Failed to pick APK:", e);
+    }
+  };
 
   const handleAnalyze = (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,14 +89,25 @@ export const ApkAnalyzerPanel: React.FC<ApkAnalyzerPanelProps> = ({
           className="form-input"
           style={{ width: "100%", fontFamily: "var(--font-mono)", fontSize: "12px", boxSizing: "border-box" }}
         />
-        <button
-          type="submit"
-          className="btn-toolbar primary"
-          style={{ width: "100%", justifyContent: "center", padding: "8px" }}
-        >
-          <Search size={14} />
-          Analyze APK
-        </button>
+        <div style={{ display: "flex", gap: "8px" }}>
+          <button
+            type="button"
+            onClick={handleBrowseApk}
+            className="btn-toolbar"
+            style={{ flex: 1, justifyContent: "center", padding: "8px" }}
+          >
+            <FolderOpen size={14} />
+            Browse APK...
+          </button>
+          <button
+            type="submit"
+            className="btn-toolbar primary"
+            style={{ flex: 1, justifyContent: "center", padding: "8px" }}
+          >
+            <Search size={14} />
+            Analyze APK
+          </button>
+        </div>
       </form>
 
       {/* Analysis Output */}

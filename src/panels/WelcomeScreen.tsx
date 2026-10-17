@@ -199,7 +199,11 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
               padding: "2px 8px",
               borderRadius: "var(--radius-sm)",
               whiteSpace: "nowrap",
+              maxWidth: "150px",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
             }}
+            title={version || (detected ? "Ready" : "Missing")}
           >
             {version || (detected ? "Ready" : "Missing")}
           </div>
@@ -239,12 +243,14 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
         flex: 1,
         width: "100%",
         height: "100%",
-        padding: "28px 32px",
+        padding: "20px 24px",
         overflowY: "auto",
+        overflowX: "hidden",
+        boxSizing: "border-box",
         background: "var(--bg-spotlight)",
       }}
     >
-      <div style={{ width: "100%", maxWidth: "1280px" }}>
+      <div style={{ width: "100%", maxWidth: "1280px", boxSizing: "border-box" }}>
         {/* Header branding */}
         <div
           style={{
@@ -255,6 +261,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
             borderBottom: "1px solid var(--border-subtle)",
             paddingBottom: "16px",
             gap: "16px",
+            flexWrap: "wrap",
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
@@ -382,13 +389,15 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
           </div>
         )}
 
-        {/* 3-Column Balanced Dashboard */}
+        {/* Responsive Dashboard Grid */}
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "minmax(250px, 300px) 1.5fr minmax(280px, 340px)",
-            gap: "20px",
+            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+            gap: "16px",
             alignItems: "start",
+            width: "100%",
+            boxSizing: "border-box",
           }}
         >
           {/* Column 1: Recent Projects */}
@@ -400,6 +409,8 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
               padding: "18px",
               display: "flex",
               flexDirection: "column",
+              minWidth: 0,
+              boxSizing: "border-box",
             }}
           >
             <div
@@ -505,6 +516,8 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
               padding: "18px",
               display: "flex",
               flexDirection: "column",
+              minWidth: 0,
+              boxSizing: "border-box",
             }}
           >
             <div
@@ -595,6 +608,8 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
               display: "flex",
               flexDirection: "column",
               gap: "14px",
+              minWidth: 0,
+              boxSizing: "border-box",
             }}
           >
             {/* Connected devices */}

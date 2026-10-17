@@ -315,3 +315,29 @@ pub async fn download_and_install_update(
     .map_err(|e| format!("Task execution error: {}", e))?
 }
 
+#[tauri::command]
+pub async fn pick_project_folder() -> Result<Option<String>, String> {
+    tokio::task::spawn_blocking(|| {
+        let folder = rfd::FileDialog::new()
+            .set_title("Select Android Project Root Folder")
+            .pick_folder();
+        Ok(folder.map(|p| p.to_string_lossy().to_string()))
+    })
+    .await
+    .map_err(|e| format!("Dialog execution error: {}", e))?
+}
+
+#[tauri::command]
+pub async fn pick_apk_file() -> Result<Option<String>, String> {
+    tokio::task::spawn_blocking(|| {
+        let file = rfd::FileDialog::new()
+            .set_title("Select Android APK File")
+            .add_filter("Android Package (*.apk)", &["apk"])
+            .pick_file();
+        Ok(file.map(|p| p.to_string_lossy().to_string()))
+    })
+    .await
+    .map_err(|e| format!("Dialog execution error: {}", e))?
+}
+
+

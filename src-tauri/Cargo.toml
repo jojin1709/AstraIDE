@@ -17,3 +17,4 @@ zip = { version = "9.0.4", default-features = false, features = ["deflate"] }
 walkdir = "2"
 regex = "1"
 chrono = "0.4"
+rfd = "0.15"

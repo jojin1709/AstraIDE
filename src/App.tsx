@@ -116,10 +116,53 @@ export const App: React.FC = () => {
 
   // UI Panels Layout
   const [activeActivityTab, setActiveActivityTab] = useState<"explorer" | "git" | "sdk" | "apk" | "storage">("explorer");
+  const [sidebarWidth, setSidebarWidth] = useState<number>(() => {
+    const saved = localStorage.getItem("astraide_sidebar_width");
+    return saved ? parseInt(saved, 10) : 280;
+  });
+  const [isSidebarVisible, setIsSidebarVisible] = useState<boolean>(true);
+  const [isResizingSidebar, setIsResizingSidebar] = useState<boolean>(false);
   const [activeDockTab, setActiveDockTab] = useState<"build" | "logcat" | "terminal" | "resource">("build");
   const [isDockOpen, setIsDockOpen] = useState<boolean>(true);
   const [dockHeight, setDockHeight] = useState<number>(240);
   const [isRightPanelOpen, setIsRightPanelOpen] = useState<boolean>(true);
+
+  // Resizable sidebar mouse drag handlers
+  const handleStartSidebarResize = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizingSidebar(true);
+  };
+
+  useEffect(() => {
+    if (!isResizingSidebar) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      // Activity bar width is 48px
+      const newWidth = Math.max(180, Math.min(650, e.clientX - 48));
+      setSidebarWidth(newWidth);
+    };
+
+    const handleMouseUp = () => {
+      setIsResizingSidebar(false);
+      localStorage.setItem("astraide_sidebar_width", sidebarWidth.toString());
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isResizingSidebar, sidebarWidth]);
+
+  const handleToggleActivityTab = (tab: "explorer" | "git" | "sdk" | "apk" | "storage") => {
+    if (activeActivityTab === tab && isSidebarVisible) {
+      setIsSidebarVisible(false);
+    } else {
+      setActiveActivityTab(tab);
+      setIsSidebarVisible(true);
+    }
+  };
 
   // Modals
   const [isSplashScreenOpen, setIsSplashScreenOpen] = useState<boolean>(true);
@@ -320,9 +363,14 @@ export const App: React.FC = () => {
   const handleOpenProject = async (path?: string) => {
     let projPath = path;
     if (!projPath) {
-      const promptPath = window.prompt("Enter Android Project Root Directory Path:");
-      if (!promptPath) return;
-      projPath = promptPath.trim();
+      try {
+        const picked = await invokeCommand<string | null>("pick_project_folder");
+        if (!picked) return; // User canceled dialog
+        projPath = picked;
+      } catch (err: any) {
+        setErrorMessage(`Failed to open folder picker: ${err}`);
+        return;
+      }
     }
 
     try {
@@ -818,7 +866,13 @@ export const App: React.FC = () => {
   const activeTab = openTabs.find((t) => t.id === activeTabId);
 
   return (
-    <div className="app-container">
+    <div
+      className="app-container"
+      style={{
+        userSelect: isResizingSidebar ? "none" : "auto",
+        cursor: isResizingSidebar ? "col-resize" : "default",
+      }}
+    >
       {/* TOP APPLICATION TOOLBAR */}
       <header className="app-toolbar">
         {/* Left: Branding & Project */}
@@ -1032,51 +1086,60 @@ export const App: React.FC = () => {
         {/* ACTIVITY BAR */}
         <div className="activity-bar">
           <button
-            onClick={() => setActiveActivityTab("explorer")}
-            className={`activity-btn ${activeActivityTab === "explorer" ? "active" : ""}`}
-            title="Project Explorer"
+            onClick={() => handleToggleActivityTab("explorer")}
+            className={`activity-btn ${activeActivityTab === "explorer" && isSidebarVisible ? "active" : ""}`}
+            title="Project Explorer (Toggle Sidebar)"
           >
             <Folder size={18} />
           </button>
           <button
             onClick={() => {
               if (activeProjectPath) refreshGit(activeProjectPath);
-              setActiveActivityTab("git");
+              handleToggleActivityTab("git");
             }}
-            className={`activity-btn ${activeActivityTab === "git" ? "active" : ""}`}
-            title="Git Version Control"
+            className={`activity-btn ${activeActivityTab === "git" && isSidebarVisible ? "active" : ""}`}
+            title="Git Version Control (Toggle Sidebar)"
           >
             <GitBranch size={18} />
           </button>
           <button
-            onClick={() => setActiveActivityTab("sdk")}
-            className={`activity-btn ${activeActivityTab === "sdk" ? "active" : ""}`}
-            title="Android SDK Manager"
+            onClick={() => handleToggleActivityTab("sdk")}
+            className={`activity-btn ${activeActivityTab === "sdk" && isSidebarVisible ? "active" : ""}`}
+            title="Android SDK Manager (Toggle Sidebar)"
           >
             <Layers size={18} />
           </button>
           <button
-            onClick={() => setActiveActivityTab("apk")}
-            className={`activity-btn ${activeActivityTab === "apk" ? "active" : ""}`}
-            title="APK Analyzer"
+            onClick={() => handleToggleActivityTab("apk")}
+            className={`activity-btn ${activeActivityTab === "apk" && isSidebarVisible ? "active" : ""}`}
+            title="APK Analyzer (Toggle Sidebar)"
           >
             <Package size={18} />
           </button>
           <button
             onClick={() => {
               refreshStorage();
-              setActiveActivityTab("storage");
+              handleToggleActivityTab("storage");
             }}
-            className={`activity-btn ${activeActivityTab === "storage" ? "active" : ""}`}
-            title="Storage Footprint"
+            className={`activity-btn ${activeActivityTab === "storage" && isSidebarVisible ? "active" : ""}`}
+            title="Storage Footprint (Toggle Sidebar)"
           >
             <HardDrive size={18} />
           </button>
         </div>
 
         {/* WORKSPACE LEFT: Explorer / Git / SDK / APK / Storage */}
-        <div className="workspace-left">
-          {activeActivityTab === "explorer" && (
+        {isSidebarVisible && (
+          <>
+            <div
+              className="workspace-left"
+              style={{
+                width: `${sidebarWidth}px`,
+                minWidth: `${sidebarWidth}px`,
+                maxWidth: `${sidebarWidth}px`,
+              }}
+            >
+              {activeActivityTab === "explorer" && (
             <ProjectExplorer
               rootNode={projectTree}
               activeFilePath={activeTab?.path}
@@ -1186,7 +1249,17 @@ export const App: React.FC = () => {
               }}
             />
           )}
-        </div>
+            </div>
+
+            {/* Resizable Sidebar Splitter */}
+            <div
+              className={`sidebar-splitter ${isResizingSidebar ? "active" : ""}`}
+              onMouseDown={handleStartSidebarResize}
+              onDoubleClick={() => setSidebarWidth(280)}
+              title="Drag to resize sidebar • Double-click to reset"
+            />
+          </>
+        )}
 
         {/* WORKSPACE CENTER: Code Editor or Welcome Screen */}
         <div className="workspace-center">
