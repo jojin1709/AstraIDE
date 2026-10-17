@@ -55,6 +55,8 @@ pub fn run() {
             commands::download_and_install_update,
             commands::pick_project_folder,
             commands::pick_apk_file,
+            commands::list_avds,
+            commands::launch_avd,
         ])
         .run(tauri::generate_context!())
         .expect("error while running AstraIDE application");

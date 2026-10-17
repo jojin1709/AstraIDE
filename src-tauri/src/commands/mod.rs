@@ -1,4 +1,4 @@
-use crate::core::adb_client::{AdbClient, AdbCommandResult, AndroidDevice};
+use crate::core::adb_client::{AdbClient, AdbCommandResult, AndroidDevice, AvdInfo};
 use crate::core::apk_analyzer::{ApkAnalysisReport, ApkAnalyzer};
 use crate::core::config_store::{AstraIdeConfig, ConfigStore};
 use crate::core::env_detector::{AndroidEnvironmentReport, EnvDetector, GpuReport};
@@ -338,6 +338,20 @@ pub async fn pick_apk_file() -> Result<Option<String>, String> {
     })
     .await
     .map_err(|e| format!("Dialog execution error: {}", e))?
+}
+
+#[tauri::command]
+pub async fn list_avds(custom_sdk: Option<String>) -> Vec<AvdInfo> {
+    tokio::task::spawn_blocking(move || AdbClient::list_avds(custom_sdk.as_deref()))
+        .await
+        .unwrap_or_default()
+}
+
+#[tauri::command]
+pub async fn launch_avd(custom_sdk: Option<String>, avd_name: String) -> Result<String, String> {
+    tokio::task::spawn_blocking(move || AdbClient::launch_avd(custom_sdk.as_deref(), &avd_name))
+        .await
+        .map_err(|e| format!("Task execution error: {}", e))?
 }
 
 

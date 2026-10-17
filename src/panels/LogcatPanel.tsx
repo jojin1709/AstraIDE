@@ -26,6 +26,7 @@ export const LogcatPanel: React.FC<LogcatPanelProps> = ({
   onClear,
 }) => {
   const [levelFilter, setLevelFilter] = useState<string>("ALL");
+  const [crashesOnly, setCrashesOnly] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [autoScroll, setAutoScroll] = useState<boolean>(true);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -33,7 +34,18 @@ export const LogcatPanel: React.FC<LogcatPanelProps> = ({
   const filteredEntries = useMemo(() => {
     let result = entries;
 
-    if (levelFilter !== "ALL") {
+    if (crashesOnly) {
+      result = result.filter(
+        (e) =>
+          e.level === "FATAL" ||
+          e.level === "ERROR" ||
+          e.tag.toLowerCase().includes("androidruntime") ||
+          e.message.toLowerCase().includes("fatal exception") ||
+          e.message.toLowerCase().includes("crash") ||
+          e.message.toLowerCase().includes("backtrace") ||
+          e.message.toLowerCase().includes("exception")
+      );
+    } else if (levelFilter !== "ALL") {
       result = result.filter((e) => e.level.toUpperCase() === levelFilter);
     }
 
@@ -128,6 +140,25 @@ export const LogcatPanel: React.FC<LogcatPanelProps> = ({
           <button onClick={handleExport} className="btn-toolbar" title="Export logs to file">
             <Download size={14} />
             Export
+          </button>
+
+          {/* Quick Filter: Crashes Only Preset */}
+          <button
+            onClick={() => {
+              setCrashesOnly(!crashesOnly);
+              if (!crashesOnly) setLevelFilter("ALL");
+            }}
+            className={`btn-toolbar ${crashesOnly ? "danger" : ""}`}
+            style={{
+              padding: "4px 8px",
+              fontSize: "11px",
+              background: crashesOnly ? "var(--status-error)" : undefined,
+              color: crashesOnly ? "#fff" : undefined,
+            }}
+            title="Show only uncaught crashes and FATAL exceptions"
+          >
+            <Flame size={13} />
+            Crashes Only
           </button>
         </div>
 

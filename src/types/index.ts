@@ -56,13 +56,26 @@ export interface AndroidDevice {
   state: string;
   model: string;
   product: string;
+  manufacturer?: string;
   android_version?: string;
   api_level?: string;
+  battery_level?: number;
+  screen_size?: string;
+  cpu_abi?: string;
   connection_type: string;
   is_authorized: boolean;
   transport_id?: string;
   is_graphene_os?: boolean;
   os_variant?: string;
+}
+
+export interface AvdInfo {
+  name: string;
+  path?: string;
+  target?: string;
+  abi?: string;
+  device_name?: string;
+  is_running: boolean;
 }
 
 export interface AdbCommandResult {

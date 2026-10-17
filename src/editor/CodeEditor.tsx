@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { AndroidLayoutPreview } from "./AndroidLayoutPreview";
 import { EditorState, Extension } from "@codemirror/state";
 import {
   EditorView,
@@ -55,6 +56,11 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
   const isUpdatingFromProp = useRef(false);
+
+  const isXml = filePath.toLowerCase().endsWith(".xml");
+  const [viewMode, setViewMode] = useState<"code" | "split" | "preview">(
+    isXml && filePath.toLowerCase().includes("layout") ? "split" : "code"
+  );
 
   // Determine language extension by extension
   const getLanguageExtension = (path: string): Extension[] => {
@@ -201,14 +207,88 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
 
   return (
     <div
-      ref={containerRef}
       style={{
         height: "100%",
         width: "100%",
-        overflow: "hidden",
         display: "flex",
         flexDirection: "column",
+        position: "relative",
+        overflow: "hidden",
       }}
-    />
+    >
+      {/* Code | Split | Design Mode Toggle for XML Layouts */}
+      {isXml && (
+        <div
+          style={{
+            position: "absolute",
+            top: "8px",
+            right: "16px",
+            zIndex: 30,
+            display: "flex",
+            alignItems: "center",
+            background: "var(--bg-secondary)",
+            border: "1px solid var(--border-medium)",
+            borderRadius: "6px",
+            padding: "2px",
+            gap: "2px",
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.4)",
+          }}
+        >
+          <button
+            onClick={() => setViewMode("code")}
+            className={`btn-toolbar ${viewMode === "code" ? "primary" : ""}`}
+            style={{ padding: "3px 8px", fontSize: "11px", height: "24px" }}
+            title="Source Code Only"
+          >
+            Code
+          </button>
+          <button
+            onClick={() => setViewMode("split")}
+            className={`btn-toolbar ${viewMode === "split" ? "primary" : ""}`}
+            style={{ padding: "3px 8px", fontSize: "11px", height: "24px" }}
+            title="Split Code & Android Preview"
+          >
+            Split
+          </button>
+          <button
+            onClick={() => setViewMode("preview")}
+            className={`btn-toolbar ${viewMode === "preview" ? "primary" : ""}`}
+            style={{ padding: "3px 8px", fontSize: "11px", height: "24px" }}
+            title="Android Layout Visual Preview"
+          >
+            Design
+          </button>
+        </div>
+      )}
+
+      <div style={{ flex: 1, display: "flex", height: "100%", width: "100%", overflow: "hidden" }}>
+        <div
+          ref={containerRef}
+          style={{
+            height: "100%",
+            flex: viewMode === "split" ? 1 : viewMode === "code" ? 1 : 0,
+            display: viewMode === "preview" ? "none" : "flex",
+            flexDirection: "column",
+            overflow: "hidden",
+            borderRight: viewMode === "split" ? "1px solid var(--border-subtle)" : "none",
+          }}
+        />
+
+        {isXml && (viewMode === "split" || viewMode === "preview") && (
+          <div
+            style={{
+              flex: 1,
+              height: "100%",
+              overflow: "hidden",
+            }}
+          >
+            <AndroidLayoutPreview
+              xmlContent={content}
+              fileName={filePath.split("\\").pop() || filePath.split("/").pop() || "layout.xml"}
+            />
+          </div>
+        )}
+      </div>
+    </div>
   );
 };

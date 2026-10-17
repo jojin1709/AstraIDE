@@ -8,13 +8,27 @@ pub struct AndroidDevice {
     pub state: String, // "device", "unauthorized", "offline", "bootloader"
     pub model: String,
     pub product: String,
+    pub manufacturer: Option<String>,
     pub android_version: Option<String>,
     pub api_level: Option<String>,
+    pub battery_level: Option<i32>,
+    pub screen_size: Option<String>,
+    pub cpu_abi: Option<String>,
     pub connection_type: String, // "USB" or "Emulator" or "WiFi"
     pub is_authorized: bool,
     pub transport_id: Option<String>,
     pub is_graphene_os: bool,
     pub os_variant: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AvdInfo {
+    pub name: String,
+    pub path: Option<String>,
+    pub target: Option<String>,
+    pub abi: Option<String>,
+    pub device_name: Option<String>,
+    pub is_running: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -122,8 +136,12 @@ impl AdbClient {
                 "USB".to_string()
             };
 
+            let mut manufacturer = None;
             let mut android_version = None;
             let mut api_level = None;
+            let mut battery_level = None;
+            let mut screen_size = None;
+            let mut cpu_abi = None;
             let mut is_graphene_os = false;
             let mut os_variant = None;
 
@@ -204,6 +222,59 @@ impl AdbClient {
                     }
                 }
 
+                if let Ok(mfg_out) = hidden_command(&adb)
+                    .args(["-s", &serial, "shell", "getprop", "ro.product.manufacturer"])
+                    .output()
+                {
+                    if mfg_out.status.success() {
+                        let m = String::from_utf8_lossy(&mfg_out.stdout).trim().to_string();
+                        if !m.is_empty() {
+                            manufacturer = Some(m);
+                        }
+                    }
+                }
+
+                if let Ok(abi_out) = hidden_command(&adb)
+                    .args(["-s", &serial, "shell", "getprop", "ro.product.cpu.abi"])
+                    .output()
+                {
+                    if abi_out.status.success() {
+                        let a = String::from_utf8_lossy(&abi_out.stdout).trim().to_string();
+                        if !a.is_empty() {
+                            cpu_abi = Some(a);
+                        }
+                    }
+                }
+
+                if let Ok(wm_out) = hidden_command(&adb)
+                    .args(["-s", &serial, "shell", "wm", "size"])
+                    .output()
+                {
+                    if wm_out.status.success() {
+                        let w = String::from_utf8_lossy(&wm_out.stdout);
+                        if let Some(sz) = w.lines().find(|l| l.contains("Physical size:")) {
+                            screen_size = Some(sz.replace("Physical size:", "").trim().to_string());
+                        }
+                    }
+                }
+
+                if let Ok(bat_out) = hidden_command(&adb)
+                    .args(["-s", &serial, "shell", "dumpsys", "battery"])
+                    .output()
+                {
+                    if bat_out.status.success() {
+                        let b = String::from_utf8_lossy(&bat_out.stdout);
+                        for line in b.lines() {
+                            if let Some(lvl_str) = line.trim().strip_prefix("level:") {
+                                if let Ok(lvl) = lvl_str.trim().parse::<i32>() {
+                                    battery_level = Some(lvl);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
                 if is_graphene_os && os_variant.is_none() {
                     os_variant = Some("GrapheneOS (Hardened)".to_string());
                 }
@@ -222,8 +293,12 @@ impl AdbClient {
                 state: display_state,
                 model,
                 product,
+                manufacturer,
                 android_version,
                 api_level,
+                battery_level,
+                screen_size,
+                cpu_abi,
                 connection_type,
                 is_authorized,
                 transport_id,
@@ -342,6 +417,143 @@ impl AdbClient {
         // Convert PNG bytes to base64
         let b64 = base64_encode(&out.stdout);
         Ok(format!("data:image/png;base64,{}", b64))
+    }
+
+    pub fn get_emulator_binary(custom_sdk: Option<&str>) -> Result<PathBuf, String> {
+        if let Some(sdk) = custom_sdk {
+            let p = Path::new(sdk).join("emulator").join("emulator.exe");
+            if p.exists() {
+                return Ok(p);
+            }
+        }
+        if let Ok(sdk_env) = std::env::var("ANDROID_HOME") {
+            let p = PathBuf::from(sdk_env).join("emulator").join("emulator.exe");
+            if p.exists() {
+                return Ok(p);
+            }
+        }
+        if let Ok(local_app_data) = std::env::var("LOCALAPPDATA") {
+            let p = PathBuf::from(local_app_data)
+                .join("Android")
+                .join("Sdk")
+                .join("emulator")
+                .join("emulator.exe");
+            if p.exists() {
+                return Ok(p);
+            }
+        }
+        if let Ok(out) = hidden_command("where.exe").arg("emulator").output() {
+            if out.status.success() {
+                let s = String::from_utf8_lossy(&out.stdout);
+                if let Some(line) = s.lines().next() {
+                    let p = PathBuf::from(line.trim());
+                    if p.exists() {
+                        return Ok(p);
+                    }
+                }
+            }
+        }
+        Err("Android emulator binary not found in SDK or PATH.".to_string())
+    }
+
+    pub fn list_avds(custom_sdk: Option<&str>) -> Vec<AvdInfo> {
+        let mut avd_names: Vec<String> = Vec::new();
+
+        // Method 1: emulator.exe -list-avds
+        if let Ok(emu) = Self::get_emulator_binary(custom_sdk) {
+            if let Ok(out) = hidden_command(&emu).arg("-list-avds").output() {
+                if out.status.success() {
+                    for line in String::from_utf8_lossy(&out.stdout).lines() {
+                        let name = line.trim();
+                        if !name.is_empty() && !avd_names.iter().any(|n| n == name) {
+                            avd_names.push(name.to_string());
+                        }
+                    }
+                }
+            }
+        }
+
+        // Method 2: Inspect ~/.android/avd/*.ini
+        if let Ok(user_profile) = std::env::var("USERPROFILE") {
+            let avd_dir = PathBuf::from(user_profile).join(".android").join("avd");
+            if let Ok(entries) = std::fs::read_dir(&avd_dir) {
+                for entry in entries.flatten() {
+                    let path = entry.path();
+                    if path.is_file() && path.extension().map(|e| e == "ini").unwrap_or(false) {
+                        if let Some(file_stem) = path.file_stem().and_then(|s| s.to_str()) {
+                            let name = file_stem.to_string();
+                            if !avd_names.contains(&name) {
+                                avd_names.push(name);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Query active running devices to check if any AVD is running
+        let running_devices = Self::list_devices(custom_sdk).unwrap_or_default();
+        let any_emulator_running = running_devices.iter().any(|d| d.connection_type == "Emulator");
+
+        let mut result = Vec::new();
+        for name in avd_names {
+            let mut abi = None;
+            let mut device_name = None;
+            let mut target = None;
+            let mut avd_folder = None;
+
+            if let Ok(user_profile) = std::env::var("USERPROFILE") {
+                let avd_dir = PathBuf::from(&user_profile).join(".android").join("avd");
+                let ini_file = avd_dir.join(format!("{}.ini", name));
+                if let Ok(ini_content) = std::fs::read_to_string(&ini_file) {
+                    for line in ini_content.lines() {
+                        if let Some(p) = line.strip_prefix("path=") {
+                            avd_folder = Some(p.trim().to_string());
+                        } else if let Some(t) = line.strip_prefix("target=") {
+                            target = Some(t.trim().to_string());
+                        }
+                    }
+                }
+
+                let folder_path = avd_folder.as_ref().map(PathBuf::from).unwrap_or_else(|| avd_dir.join(format!("{}.avd", name)));
+                let config_file = folder_path.join("config.ini");
+                if let Ok(cfg_content) = std::fs::read_to_string(config_file) {
+                    for line in cfg_content.lines() {
+                        if let Some(a) = line.strip_prefix("abi.type=") {
+                            abi = Some(a.trim().to_string());
+                        } else if let Some(d) = line.strip_prefix("hw.device.name=") {
+                            device_name = Some(d.trim().to_string());
+                        } else if let Some(img) = line.strip_prefix("image.sysdir.1=") {
+                            if target.is_none() {
+                                target = Some(img.trim().replace('\\', "/"));
+                            }
+                        }
+                    }
+                }
+            }
+
+            result.push(AvdInfo {
+                name,
+                path: avd_folder,
+                target,
+                abi,
+                device_name,
+                is_running: any_emulator_running,
+            });
+        }
+
+        result
+    }
+
+    pub fn launch_avd(custom_sdk: Option<&str>, avd_name: &str) -> Result<String, String> {
+        let emu = Self::get_emulator_binary(custom_sdk)?;
+        // Spawn emulator completely detached with Direct3D/Host GPU acceleration
+        hidden_command(&emu)
+            .args(["-avd", avd_name, "-gpu", "host"])
+            .spawn()
+            .map_err(|e| format!("Failed to spawn Android emulator process: {}", e))?;
+
+        Ok(format!("Emulator '{}' launched with Direct3D / Host GPU acceleration.", avd_name))
     }
 }
 

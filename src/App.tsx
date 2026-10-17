@@ -423,6 +423,13 @@ export const App: React.FC = () => {
 
   // FILE HANDLING & EDITOR
   const handleOpenFile = async (filePath: string) => {
+    if (filePath.toLowerCase().endsWith(".apk")) {
+      handleAnalyzeApkPath(filePath);
+      setActiveActivityTab("apk");
+      setIsSidebarVisible(true);
+      return;
+    }
+
     const existing = openTabs.find((t) => t.path === filePath);
     if (existing) {
       setActiveTabId(existing.id);
