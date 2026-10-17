@@ -51,6 +51,8 @@ pub fn run() {
             commands::install_all_missing_components,
             commands::add_path_to_environment,
             commands::detect_gpus,
+            commands::check_for_updates,
+            commands::download_and_install_update,
         ])
         .run(tauri::generate_context!())
         .expect("error while running AstraIDE application");

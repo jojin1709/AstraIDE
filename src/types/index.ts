@@ -285,3 +285,24 @@ export interface OpenEditorTab {
   isDirty: boolean;
   extension: string;
 }
+
+export interface UpdateInfo {
+  current_version: string;
+  latest_version: string;
+  update_available: boolean;
+  release_name: string;
+  release_notes: string;
+  published_at: string;
+  html_url: string;
+  download_url?: string;
+  asset_name?: string;
+  asset_size_bytes?: number;
+}
+
+export interface UpdateProgressEvent {
+  percent: number;
+  status: string;
+  downloaded_bytes: number;
+  total_bytes: number;
+}
+

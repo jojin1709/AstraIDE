@@ -13,3 +13,4 @@ pub mod git_client;
 pub mod config_store;
 pub mod process_utils;
 pub mod tool_installer;
+pub mod updater;

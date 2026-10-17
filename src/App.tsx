@@ -24,6 +24,8 @@ import {
   AlertTriangle,
   ChevronDown,
   ChevronUp,
+  Sparkles,
+  ArrowUpCircle,
 } from "lucide-react";
 
 import {
@@ -42,6 +44,7 @@ import {
   StorageAnalysisReport,
   SystemResourceReport,
   TerminalLineEvent,
+  UpdateInfo,
 } from "./types";
 
 import { invokeCommand, listenEvent } from "./services/tauriBridge";
@@ -60,6 +63,7 @@ import { GitPanel } from "./panels/GitPanel";
 import { NewProjectModal } from "./panels/NewProjectModal";
 import { SettingsModal } from "./panels/SettingsModal";
 import { SplashScreen } from "./panels/SplashScreen";
+import { UpdateCenterModal } from "./panels/UpdateCenterModal";
 import { CommandPalette, CommandItem } from "./panels/CommandPalette";
 import { ContextMenu } from "./panels/ContextMenu";
 
@@ -120,12 +124,30 @@ export const App: React.FC = () => {
   // Modals
   const [isSplashScreenOpen, setIsSplashScreenOpen] = useState<boolean>(true);
   const [isInitialLoadingSplash, setIsInitialLoadingSplash] = useState<boolean>(true);
+  const [isUpdateCenterOpen, setIsUpdateCenterOpen] = useState<boolean>(false);
+  const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null);
+  const [isCheckingUpdate, setIsCheckingUpdate] = useState<boolean>(false);
   const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState<boolean>(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState<boolean>(false);
   const [screenshotModalImage, setScreenshotModalImage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
+
+  const handleCheckForUpdates = useCallback(async (openModal = false) => {
+    try {
+      setIsCheckingUpdate(true);
+      const info = await invokeCommand<UpdateInfo>("check_for_updates");
+      setUpdateInfo(info);
+      if (openModal || info.update_available) {
+        setIsUpdateCenterOpen(true);
+      }
+    } catch (e) {
+      console.warn("Update check failed:", e);
+    } finally {
+      setIsCheckingUpdate(false);
+    }
+  }, []);
 
   // Global right-click context menu interceptor (blocks default browser menu)
   useEffect(() => {
@@ -150,6 +172,10 @@ export const App: React.FC = () => {
       refreshEnvironment();
     }, 220);
 
+    const t3 = setTimeout(() => {
+      handleCheckForUpdates(false);
+    }, 1200);
+
     // Listen to background build lines
     const unlistenBuild = listenEvent<GradleBuildLineEvent>("gradle-build-line", (ev) => {
       setBuildLogs((prev) => [...prev, { task: ev.task, line: ev.line, is_error: ev.is_error }]);
@@ -171,6 +197,7 @@ export const App: React.FC = () => {
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
+      clearTimeout(t3);
       unlistenBuild.then((u) => u());
       unlistenLogcat.then((u) => u());
       unlistenTerminal.then((u) => u());
@@ -774,8 +801,18 @@ export const App: React.FC = () => {
         shortcut: "Ctrl+,",
         action: () => setIsSettingsModalOpen(true),
       },
+      {
+        id: "check-updates",
+        title: "Check for Updates (Update Center)",
+        category: "Help",
+        icon: <ArrowUpCircle size={14} />,
+        action: () => {
+          setIsUpdateCenterOpen(true);
+          handleCheckForUpdates(true);
+        },
+      },
     ],
-    [activeProjectPath, selectedDeviceSerial]
+    [activeProjectPath, selectedDeviceSerial, handleCheckForUpdates]
   );
 
   const activeTab = openTabs.find((t) => t.id === activeTabId);
@@ -909,6 +946,30 @@ export const App: React.FC = () => {
             <span style={{ fontFamily: "var(--font-mono)", opacity: 0.8 }}>Ctrl+Shift+P</span>
           </button>
 
+          {/* Update Available Badge */}
+          {updateInfo?.update_available && (
+            <button
+              onClick={() => setIsUpdateCenterOpen(true)}
+              className="btn-toolbar primary"
+              style={{
+                fontSize: "11px",
+                padding: "3px 8px",
+                background: "linear-gradient(90deg, #10b981, #00d2ff)",
+                color: "#070c16",
+                fontWeight: 700,
+                border: "none",
+                display: "flex",
+                alignItems: "center",
+                gap: "5px",
+                boxShadow: "0 0 10px rgba(0, 210, 255, 0.4)",
+              }}
+              title={`New version ${updateInfo.latest_version} available! Click to update.`}
+            >
+              <Sparkles size={12} />
+              Update {updateInfo.latest_version}
+            </button>
+          )}
+
           <button
             onClick={() => {
               const nextTheme = config.theme === "dark" ? "light" : "dark";
@@ -918,6 +979,17 @@ export const App: React.FC = () => {
             title="Toggle Dark / Light Theme"
           >
             {config.theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
+          </button>
+
+          <button
+            onClick={() => {
+              setIsUpdateCenterOpen(true);
+              handleCheckForUpdates(true);
+            }}
+            className="icon-btn"
+            title="AstraIDE Update Center"
+          >
+            <ArrowUpCircle size={15} />
           </button>
 
           <button
@@ -1476,6 +1548,15 @@ export const App: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* AstraIDE Update Center Modal */}
+      <UpdateCenterModal
+        isOpen={isUpdateCenterOpen}
+        onClose={() => setIsUpdateCenterOpen(false)}
+        updateInfo={updateInfo}
+        isChecking={isCheckingUpdate}
+        onCheckUpdates={() => handleCheckForUpdates(true)}
+      />
 
       {/* AstraIDE Splash / Loading Screen */}
       <SplashScreen

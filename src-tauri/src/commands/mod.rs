@@ -12,6 +12,7 @@ use crate::core::sdk_manager::{SdkManager, SdkPackagesReport};
 use crate::core::storage_analyzer::{StorageAnalysisReport, StorageAnalyzer};
 use crate::core::terminal_session::{TerminalCommandResult, TerminalManager};
 use crate::core::tool_installer::ToolInstaller;
+use crate::core::updater::{UpdateCenter, UpdateInfo};
 use std::sync::Arc;
 use tauri::{AppHandle, State};
 
@@ -293,3 +294,24 @@ pub async fn detect_gpus() -> Vec<GpuReport> {
         .await
         .unwrap_or_default()
 }
+
+#[tauri::command]
+pub async fn check_for_updates() -> Result<UpdateInfo, String> {
+    tokio::task::spawn_blocking(UpdateCenter::check_for_updates)
+        .await
+        .map_err(|e| format!("Task execution error: {}", e))?
+}
+
+#[tauri::command]
+pub async fn download_and_install_update(
+    app: AppHandle,
+    download_url: String,
+    asset_name: String,
+) -> Result<String, String> {
+    tokio::task::spawn_blocking(move || {
+        UpdateCenter::download_and_install_update(&app, &download_url, &asset_name)
+    })
+    .await
+    .map_err(|e| format!("Task execution error: {}", e))?
+}
+
