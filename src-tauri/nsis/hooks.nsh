@@ -26,7 +26,7 @@
   CreateShortCut "$DESKTOP\AstraIDE.lnk" "$INSTDIR\AstraIDE.exe" "" "$INSTDIR\AstraIDE.exe" 0
 
   ; Broadcast environment changes so all open terminals and processes pick it up
-  SendMessageTimeout ${HWND_BROADCAST} ${WM_SETTINGCHANGE} 0 "STR:Environment" ${SMTO_ABORTIFHUNG} 5000 $0
+  SendMessage ${HWND_BROADCAST} ${WM_SETTINGCHANGE} 0 "STR:Environment" /TIMEOUT=5000
   System::Call 'shell32::SHChangeNotify(i 0x08000000, i 0, i 0, i 0)'
 !macroend
 
@@ -36,7 +36,7 @@
   Delete "$DESKTOP\AstraIDE.lnk"
 
   ; Notify Windows of environment updates
-  SendMessageTimeout ${HWND_BROADCAST} ${WM_SETTINGCHANGE} 0 "STR:Environment" ${SMTO_ABORTIFHUNG} 5000 $0
+  SendMessage ${HWND_BROADCAST} ${WM_SETTINGCHANGE} 0 "STR:Environment" /TIMEOUT=5000
   System::Call 'shell32::SHChangeNotify(i 0x08000000, i 0, i 0, i 0)'
 !macroend
 
