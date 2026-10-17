@@ -12,6 +12,7 @@ import {
   CheckCircle2,
   X,
   ExternalLink,
+  Shield,
 } from "lucide-react";
 import { AndroidDevice } from "../types";
 
@@ -127,6 +128,24 @@ export const DeviceManager: React.FC<DeviceManagerProps> = ({
                     <div style={{ fontWeight: 600, fontSize: "13px", color: "var(--text-primary)" }}>
                       {device.model}
                     </div>
+                    {device.is_graphene_os && (
+                      <span
+                        style={{
+                          fontSize: "10px",
+                          fontWeight: 700,
+                          padding: "2px 6px",
+                          borderRadius: "4px",
+                          background: "var(--accent-primary-subtle)",
+                          color: "var(--accent-primary)",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "3px",
+                        }}
+                      >
+                        <Shield size={10} />
+                        {device.os_variant || "GrapheneOS"}
+                      </span>
+                    )}
                   </div>
                   <div
                     style={{
@@ -235,6 +254,65 @@ export const DeviceManager: React.FC<DeviceManagerProps> = ({
             );
           })
         )}
+
+        {/* Pre-built GrapheneOS Hardened Profile Card */}
+        <div
+          style={{
+            marginTop: "8px",
+            background: "var(--bg-primary)",
+            border: "1px solid var(--border-subtle)",
+            borderRadius: "var(--radius-lg)",
+            padding: "12px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "8px",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <Shield size={15} color="var(--accent-primary)" />
+              <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--text-primary)" }}>
+                GrapheneOS Hardened Target
+              </span>
+            </div>
+            <span
+              style={{
+                fontSize: "10px",
+                fontFamily: "var(--font-mono)",
+                background: "var(--accent-primary-subtle)",
+                color: "var(--accent-primary)",
+                padding: "2px 6px",
+                borderRadius: "4px",
+                fontWeight: 600,
+              }}
+            >
+              Pre-built Profile
+            </span>
+          </div>
+
+          <div style={{ fontSize: "11px", color: "var(--text-secondary)", lineHeight: 1.4 }}>
+            Test app compatibility with GrapheneOS <strong>hardened_malloc</strong>, Sandboxed Google Play, and strict permissions.
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "6px",
+              fontSize: "10px",
+              fontFamily: "var(--font-mono)",
+              color: "var(--text-muted)",
+              background: "var(--bg-secondary)",
+              padding: "8px",
+              borderRadius: "var(--radius-md)",
+            }}
+          >
+            <div>VM: <strong>x86_64 Host Direct3D</strong></div>
+            <div>RAM: <strong>4096 MB</strong></div>
+            <div>Play: <strong>Sandboxed</strong></div>
+            <div>Allocator: <strong>Hardened</strong></div>
+          </div>
+        </div>
       </div>
     </div>
   );

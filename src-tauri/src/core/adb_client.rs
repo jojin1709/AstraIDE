@@ -13,6 +13,8 @@ pub struct AndroidDevice {
     pub connection_type: String, // "USB" or "Emulator" or "WiFi"
     pub is_authorized: bool,
     pub transport_id: Option<String>,
+    pub is_graphene_os: bool,
+    pub os_variant: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -122,6 +124,8 @@ impl AdbClient {
 
             let mut android_version = None;
             let mut api_level = None;
+            let mut is_graphene_os = false;
+            let mut os_variant = None;
 
             if is_authorized {
                 // Query properties
@@ -158,6 +162,51 @@ impl AdbClient {
                         }
                     }
                 }
+
+                // Check for GrapheneOS
+                if let Ok(flavor_out) = hidden_command(&adb)
+                    .args(["-s", &serial, "shell", "getprop", "ro.build.flavor"])
+                    .output()
+                {
+                    if flavor_out.status.success() {
+                        let flv = String::from_utf8_lossy(&flavor_out.stdout).to_lowercase();
+                        if flv.contains("graphene") {
+                            is_graphene_os = true;
+                        }
+                    }
+                }
+
+                if let Ok(g_ver_out) = hidden_command(&adb)
+                    .args(["-s", &serial, "shell", "getprop", "ro.grapheneos.version"])
+                    .output()
+                {
+                    if g_ver_out.status.success() {
+                        let gv = String::from_utf8_lossy(&g_ver_out.stdout).trim().to_string();
+                        if !gv.is_empty() {
+                            is_graphene_os = true;
+                            os_variant = Some(format!("GrapheneOS {}", gv));
+                        }
+                    }
+                }
+
+                if let Ok(disp_out) = hidden_command(&adb)
+                    .args(["-s", &serial, "shell", "getprop", "ro.build.display.id"])
+                    .output()
+                {
+                    if disp_out.status.success() {
+                        let disp = String::from_utf8_lossy(&disp_out.stdout).trim().to_string();
+                        if disp.to_lowercase().contains("graphene") {
+                            is_graphene_os = true;
+                            if os_variant.is_none() {
+                                os_variant = Some(disp);
+                            }
+                        }
+                    }
+                }
+
+                if is_graphene_os && os_variant.is_none() {
+                    os_variant = Some("GrapheneOS (Hardened)".to_string());
+                }
             }
 
             let display_state = match raw_state {
@@ -178,6 +227,8 @@ impl AdbClient {
                 connection_type,
                 is_authorized,
                 transport_id,
+                is_graphene_os,
+                os_variant,
             });
         }
 

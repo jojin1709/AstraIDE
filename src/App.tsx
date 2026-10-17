@@ -59,6 +59,7 @@ import { ResourceMonitorPanel } from "./panels/ResourceMonitorPanel";
 import { GitPanel } from "./panels/GitPanel";
 import { NewProjectModal } from "./panels/NewProjectModal";
 import { SettingsModal } from "./panels/SettingsModal";
+import { SplashScreen } from "./panels/SplashScreen";
 import { CommandPalette, CommandItem } from "./panels/CommandPalette";
 import { ContextMenu } from "./panels/ContextMenu";
 
@@ -117,6 +118,8 @@ export const App: React.FC = () => {
   const [isRightPanelOpen, setIsRightPanelOpen] = useState<boolean>(true);
 
   // Modals
+  const [isSplashScreenOpen, setIsSplashScreenOpen] = useState<boolean>(true);
+  const [isInitialLoadingSplash, setIsInitialLoadingSplash] = useState<boolean>(true);
   const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState<boolean>(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState<boolean>(false);
@@ -783,8 +786,15 @@ export const App: React.FC = () => {
       <header className="app-toolbar">
         {/* Left: Branding & Project */}
         <div className="toolbar-left">
-          <div className="brand-badge" onClick={() => setActiveProjectPath(null)}>
-            <img src="/favicon.png" alt="AstraIDE" className="brand-logo" />
+          <div
+            className="brand-badge"
+            onClick={() => {
+              setIsInitialLoadingSplash(false);
+              setIsSplashScreenOpen(true);
+            }}
+            title="Click to view AstraIDE Splash & Release Info"
+          >
+            <img src="/icon.png" alt="AstraIDE" className="brand-logo" />
             <span className="brand-name">AstraIDE</span>
             <span className="brand-version">v0.1</span>
           </div>
@@ -1466,6 +1476,13 @@ export const App: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* AstraIDE Splash / Loading Screen */}
+      <SplashScreen
+        isOpen={isSplashScreenOpen}
+        onClose={() => setIsSplashScreenOpen(false)}
+        isInitialLoading={isInitialLoadingSplash}
+      />
     </div>
   );
 };

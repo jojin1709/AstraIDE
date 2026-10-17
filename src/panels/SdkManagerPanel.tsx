@@ -70,18 +70,22 @@ export const SdkManagerPanel: React.FC<SdkManagerPanelProps> = ({
         <span style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-secondary)" }}>
           Android SDK Location
         </span>
-        <div style={{ display: "flex", gap: "8px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
           <input
             type="text"
             value={sdkInput}
             onChange={(e) => setSdkInput(e.target.value)}
             placeholder="C:\Users\username\AppData\Local\Android\Sdk"
             className="form-input"
-            style={{ flex: 1, fontFamily: "var(--font-mono)", fontSize: "12px" }}
+            style={{ width: "100%", fontFamily: "var(--font-mono)", fontSize: "12px", boxSizing: "border-box" }}
           />
-          <button onClick={handleSavePath} className="btn-toolbar primary">
+          <button
+            onClick={handleSavePath}
+            className="btn-toolbar primary"
+            style={{ width: "100%", justifyContent: "center", padding: "8px" }}
+          >
             <Save size={13} />
-            Apply Path
+            Apply SDK Path
           </button>
         </div>
         {report && (
@@ -122,14 +126,17 @@ export const SdkManagerPanel: React.FC<SdkManagerPanelProps> = ({
                       background: "var(--bg-secondary)",
                       borderRadius: "var(--radius-md)",
                       fontSize: "12px",
+                      gap: "8px",
                     }}
                   >
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      <CheckCircle2 size={14} color="var(--status-success)" />
-                      <span style={{ fontWeight: 500, color: "var(--text-primary)" }}>{p.name}</span>
-                      <span style={{ color: "var(--text-muted)", fontSize: "11px" }}>({p.version})</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px", minWidth: 0, overflow: "hidden" }}>
+                      <CheckCircle2 size={14} color="var(--status-success)" style={{ flexShrink: 0 }} />
+                      <span style={{ fontWeight: 500, color: "var(--text-primary)", whiteSpace: "nowrap" }}>{p.name}</span>
+                      <span style={{ color: "var(--text-muted)", fontSize: "11px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        ({p.version})
+                      </span>
                     </div>
-                    <span style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)", fontSize: "11px" }}>
+                    <span style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)", fontSize: "11px", flexShrink: 0 }}>
                       {p.size_mb} MB
                     </span>
                   </div>
@@ -165,13 +172,14 @@ export const SdkManagerPanel: React.FC<SdkManagerPanelProps> = ({
                       background: "var(--bg-secondary)",
                       borderRadius: "var(--radius-md)",
                       fontSize: "12px",
+                      gap: "8px",
                     }}
                   >
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      <CheckCircle2 size={14} color="var(--status-success)" />
-                      <span style={{ fontWeight: 500, color: "var(--text-primary)" }}>{bt.name}</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px", minWidth: 0, overflow: "hidden" }}>
+                      <CheckCircle2 size={14} color="var(--status-success)" style={{ flexShrink: 0 }} />
+                      <span style={{ fontWeight: 500, color: "var(--text-primary)", whiteSpace: "nowrap" }}>{bt.name}</span>
                     </div>
-                    <span style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)", fontSize: "11px" }}>
+                    <span style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)", fontSize: "11px", flexShrink: 0 }}>
                       {bt.size_mb} MB
                     </span>
                   </div>
@@ -203,13 +211,14 @@ export const SdkManagerPanel: React.FC<SdkManagerPanelProps> = ({
                     background: "var(--bg-secondary)",
                     borderRadius: "var(--radius-md)",
                     fontSize: "12px",
+                    gap: "8px",
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <CheckCircle2 size={14} color="var(--status-success)" />
-                    <span style={{ fontWeight: 500, color: "var(--text-primary)" }}>{report.platform_tools.name}</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", minWidth: 0, overflow: "hidden" }}>
+                    <CheckCircle2 size={14} color="var(--status-success)" style={{ flexShrink: 0 }} />
+                    <span style={{ fontWeight: 500, color: "var(--text-primary)", whiteSpace: "nowrap" }}>{report.platform_tools.name}</span>
                   </div>
-                  <span style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)", fontSize: "11px" }}>
+                  <span style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)", fontSize: "11px", flexShrink: 0 }}>
                     {report.platform_tools.size_mb} MB
                   </span>
                 </div>
@@ -224,13 +233,14 @@ export const SdkManagerPanel: React.FC<SdkManagerPanelProps> = ({
                     background: "var(--bg-secondary)",
                     borderRadius: "var(--radius-md)",
                     fontSize: "12px",
+                    gap: "8px",
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <CheckCircle2 size={14} color="var(--status-success)" />
-                    <span style={{ fontWeight: 500, color: "var(--text-primary)" }}>{report.emulator.name}</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", minWidth: 0, overflow: "hidden" }}>
+                    <CheckCircle2 size={14} color="var(--status-success)" style={{ flexShrink: 0 }} />
+                    <span style={{ fontWeight: 500, color: "var(--text-primary)", whiteSpace: "nowrap" }}>{report.emulator.name}</span>
                   </div>
-                  <span style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)", fontSize: "11px" }}>
+                  <span style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)", fontSize: "11px", flexShrink: 0 }}>
                     {report.emulator.size_mb} MB
                   </span>
                 </div>

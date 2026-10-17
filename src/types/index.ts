@@ -61,6 +61,8 @@ export interface AndroidDevice {
   connection_type: string;
   is_authorized: boolean;
   transport_id?: string;
+  is_graphene_os?: boolean;
+  os_variant?: string;
 }
 
 export interface AdbCommandResult {
