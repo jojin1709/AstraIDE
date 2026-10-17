@@ -1,3 +1,4 @@
+use crate::core::process_utils::hidden_tokio_command;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::Path;
@@ -6,7 +7,6 @@ use std::sync::atomic::AtomicBool;
 use std::sync::{Arc, Mutex};
 use tauri::{AppHandle, Emitter};
 use tokio::io::{AsyncBufReadExt, BufReader};
-use tokio::process::Command as TokioCommand;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TerminalLineEvent {
@@ -48,11 +48,11 @@ impl TerminalManager {
         }
 
         let mut cmd = if shell_type.to_lowercase() == "cmd" {
-            let mut c = TokioCommand::new("cmd.exe");
+            let mut c = hidden_tokio_command("cmd.exe");
             c.arg("/C").arg(&command_str);
             c
         } else {
-            let mut c = TokioCommand::new("powershell.exe");
+            let mut c = hidden_tokio_command("powershell.exe");
             c.arg("-NoProfile").arg("-Command").arg(&command_str);
             c
         };

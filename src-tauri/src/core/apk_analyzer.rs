@@ -1,9 +1,9 @@
+use crate::core::process_utils::hidden_command;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::fs::File;
 use std::path::{Path, PathBuf};
-use std::process::Command;
 use zip::ZipArchive;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -169,7 +169,7 @@ impl ApkAnalyzer {
 
         // Check if aapt exists for deep badging
         if let Some(aapt_bin) = Self::find_aapt_binary(custom_sdk) {
-            if let Ok(out) = Command::new(&aapt_bin).args(["dump", "badging", apk_path]).output() {
+            if let Ok(out) = hidden_command(&aapt_bin).args(["dump", "badging", apk_path]).output() {
                 if out.status.success() {
                     let text = String::from_utf8_lossy(&out.stdout);
                     let pkg_re = Regex::new(r"package:\s+name='([^']+)'\s+versionCode='([^']+)'\s+versionName='([^']+)'").unwrap();

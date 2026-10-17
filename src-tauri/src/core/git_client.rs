@@ -1,6 +1,6 @@
+use crate::core::process_utils::hidden_command;
 use serde::{Deserialize, Serialize};
 use std::path::Path;
-use std::process::Command;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GitFileStatus {
@@ -39,7 +39,7 @@ impl GitClient {
         }
 
         // Check is_inside_work_tree
-        let check = Command::new("git")
+        let check = hidden_command("git")
             .current_dir(p)
             .args(["rev-parse", "--is-inside-work-tree"])
             .output();
@@ -55,7 +55,7 @@ impl GitClient {
 
         // Get current branch
         let mut current_branch = None;
-        if let Ok(out) = Command::new("git")
+        if let Ok(out) = hidden_command("git")
             .current_dir(p)
             .args(["rev-parse", "--abbrev-ref", "HEAD"])
             .output()
@@ -70,7 +70,7 @@ impl GitClient {
 
         // Get status porcelain
         let mut files = Vec::new();
-        if let Ok(out) = Command::new("git")
+        if let Ok(out) = hidden_command("git")
             .current_dir(p)
             .args(["status", "--porcelain=v1"])
             .output()
@@ -98,7 +98,7 @@ impl GitClient {
 
         // Get recent commits
         let mut recent_commits = Vec::new();
-        if let Ok(out) = Command::new("git")
+        if let Ok(out) = hidden_command("git")
             .current_dir(p)
             .args(["log", "-n", "10", "--oneline"])
             .output()
@@ -127,7 +127,7 @@ impl GitClient {
     }
 
     pub fn stage_file(project_path: &str, file_path: &str) -> Result<(), String> {
-        let out = Command::new("git")
+        let out = hidden_command("git")
             .current_dir(project_path)
             .args(["add", file_path])
             .output()
@@ -140,7 +140,7 @@ impl GitClient {
     }
 
     pub fn unstage_file(project_path: &str, file_path: &str) -> Result<(), String> {
-        let out = Command::new("git")
+        let out = hidden_command("git")
             .current_dir(project_path)
             .args(["reset", "HEAD", file_path])
             .output()
@@ -153,7 +153,7 @@ impl GitClient {
     }
 
     pub fn commit(project_path: &str, message: &str) -> Result<String, String> {
-        let out = Command::new("git")
+        let out = hidden_command("git")
             .current_dir(project_path)
             .args(["commit", "-m", message])
             .output()
@@ -169,7 +169,7 @@ impl GitClient {
         let mut diff_str = String::new();
 
         // Check working tree diff
-        if let Ok(out) = Command::new("git")
+        if let Ok(out) = hidden_command("git")
             .current_dir(project_path)
             .args(["diff", file_path])
             .output()
@@ -181,7 +181,7 @@ impl GitClient {
 
         // If empty, check staged diff
         if diff_str.is_empty() {
-            if let Ok(out) = Command::new("git")
+            if let Ok(out) = hidden_command("git")
                 .current_dir(project_path)
                 .args(["diff", "--cached", file_path])
                 .output()

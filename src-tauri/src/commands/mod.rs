@@ -1,7 +1,7 @@
 use crate::core::adb_client::{AdbClient, AdbCommandResult, AndroidDevice};
 use crate::core::apk_analyzer::{ApkAnalysisReport, ApkAnalyzer};
 use crate::core::config_store::{AstraIdeConfig, ConfigStore};
-use crate::core::env_detector::{AndroidEnvironmentReport, EnvDetector};
+use crate::core::env_detector::{AndroidEnvironmentReport, EnvDetector, GpuReport};
 use crate::core::git_client::{GitClient, GitDiffResult, GitRepoStatus};
 use crate::core::gradle_runner::{GradleBuildResult, GradleRunner};
 use crate::core::logcat_streamer::LogcatStreamer;
@@ -11,6 +11,7 @@ use crate::core::resource_monitor::{ResourceMonitor, SystemResourceReport};
 use crate::core::sdk_manager::{SdkManager, SdkPackagesReport};
 use crate::core::storage_analyzer::{StorageAnalysisReport, StorageAnalyzer};
 use crate::core::terminal_session::{TerminalCommandResult, TerminalManager};
+use crate::core::tool_installer::ToolInstaller;
 use std::sync::Arc;
 use tauri::{AppHandle, State};
 
@@ -20,8 +21,10 @@ pub struct AppState {
 }
 
 #[tauri::command]
-pub fn get_environment_report() -> AndroidEnvironmentReport {
-    EnvDetector::detect_all()
+pub async fn get_environment_report() -> AndroidEnvironmentReport {
+    tokio::task::spawn_blocking(EnvDetector::detect_all)
+        .await
+        .unwrap_or_else(|_| EnvDetector::empty_report())
 }
 
 #[tauri::command]
@@ -244,4 +247,49 @@ pub fn load_config() -> AstraIdeConfig {
 #[tauri::command]
 pub fn save_config(config: AstraIdeConfig) -> Result<(), String> {
     ConfigStore::save_config(&config)
+}
+
+#[tauri::command]
+pub async fn install_toolchain_component(
+    app: AppHandle,
+    component: String,
+) -> Result<String, String> {
+    tokio::task::spawn_blocking(move || {
+        match component.as_str() {
+            "adb" | "platform_tools" => ToolInstaller::install_adb_platform_tools(&app),
+            "java" => ToolInstaller::install_java_jdk(&app),
+            "git" => ToolInstaller::install_git(&app),
+            "cmdline_tools" => ToolInstaller::install_android_cmdline_tools(&app),
+            other => Err(format!("Unknown toolchain component: {}", other)),
+        }
+    })
+    .await
+    .map_err(|e| format!("Task execution error: {}", e))?
+}
+
+#[tauri::command]
+pub async fn install_all_missing_components(
+    app: AppHandle,
+    missing: Vec<String>,
+) -> Result<Vec<String>, String> {
+    tokio::task::spawn_blocking(move || ToolInstaller::install_all_missing(&app, missing))
+        .await
+        .map_err(|e| format!("Task execution error: {}", e))?
+}
+
+#[tauri::command]
+pub async fn add_path_to_environment(path_to_add: String) -> Result<(), String> {
+    tokio::task::spawn_blocking(move || {
+        let p = std::path::Path::new(&path_to_add);
+        ToolInstaller::append_to_user_path(p)
+    })
+    .await
+    .map_err(|e| format!("Task execution error: {}", e))?
+}
+
+#[tauri::command]
+pub async fn detect_gpus() -> Vec<GpuReport> {
+    tokio::task::spawn_blocking(EnvDetector::detect_gpus)
+        .await
+        .unwrap_or_default()
 }

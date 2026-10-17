@@ -6,6 +6,14 @@ export interface ToolStatus {
   details?: string;
 }
 
+export interface GpuReport {
+  name: string;
+  vram_mb: number;
+  driver_version?: string;
+  is_discrete: boolean;
+  acceleration: string;
+}
+
 export interface DiskReport {
   mount_point: string;
   total_space_gb: number;
@@ -20,6 +28,16 @@ export interface SystemInfoReport {
   total_memory_mb: number;
   free_memory_mb: number;
   disks: DiskReport[];
+  gpus: GpuReport[];
+  primary_gpu?: GpuReport;
+}
+
+export interface InstallProgressEvent {
+  component: string;
+  stage: string;
+  percent: number;
+  message: string;
+  error?: string;
 }
 
 export interface AndroidEnvironmentReport {

@@ -1,10 +1,10 @@
+use crate::core::process_utils::{hidden_command, hidden_tokio_command};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 use std::process::Stdio;
 use std::time::Instant;
 use tauri::{AppHandle, Emitter};
 use tokio::io::{AsyncBufReadExt, BufReader};
-use tokio::process::Command as TokioCommand;
 use walkdir::WalkDir;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -46,7 +46,7 @@ impl GradleRunner {
         }
 
         // 2. Fallback to system gradle
-        if let Ok(out) = std::process::Command::new("where.exe").arg("gradle").output() {
+        if let Ok(out) = hidden_command("where.exe").arg("gradle").output() {
             if out.status.success() {
                 let s = String::from_utf8_lossy(&out.stdout);
                 if let Some(line) = s.lines().next() {
@@ -101,7 +101,7 @@ impl GradleRunner {
         let (gradle_cmd, _is_wrapper) = Self::find_gradle_executable(&project_path)?;
         let start_time = Instant::now();
 
-        let mut cmd = TokioCommand::new(&gradle_cmd);
+        let mut cmd = hidden_tokio_command(&gradle_cmd);
         cmd.current_dir(&project_path);
 
         // Supply task argument and extra flags

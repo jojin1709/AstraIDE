@@ -75,6 +75,29 @@ function mockHandler(cmd: string, args: Record<string, any>): any {
           total_memory_mb: 16000,
           free_memory_mb: 4200,
           disks: [{ mount_point: "C:", total_space_gb: 512, free_space_gb: 85 }],
+          gpus: [
+            {
+              name: "NVIDIA GeForce RTX 3050 Laptop GPU",
+              vram_mb: 4096,
+              driver_version: "32.0.15.9186",
+              is_discrete: true,
+              acceleration: "Hardware Host Acceleration (DirectX 12 / Vulkan / Dedicated GPU)",
+            },
+            {
+              name: "Intel(R) Iris(R) Xe Graphics",
+              vram_mb: 2048,
+              driver_version: "32.0.101.6790",
+              is_discrete: false,
+              acceleration: "Hardware Host Acceleration (DirectX 12 / Vulkan / Integrated GPU)",
+            },
+          ],
+          primary_gpu: {
+            name: "NVIDIA GeForce RTX 3050 Laptop GPU",
+            vram_mb: 4096,
+            driver_version: "32.0.15.9186",
+            is_discrete: true,
+            acceleration: "Hardware Host Acceleration (DirectX 12 / Vulkan / Dedicated GPU)",
+          },
         },
         java: {
           detected: true,
@@ -86,21 +109,21 @@ function mockHandler(cmd: string, args: Record<string, any>): any {
         android_sdk: {
           detected: true,
           name: "Android SDK",
-          path: "C:\\Users\\jojin\\AppData\\Local\\Android\\Sdk",
+          path: "C:\\Android\\Sdk",
           version: "4 components verified",
           details: "Platform Tools, Build Tools, Platforms",
         },
         adb: {
           detected: true,
           name: "ADB",
-          path: "C:\\Users\\jojin\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe",
+          path: "C:\\Android\\Sdk\\platform-tools\\adb.exe",
           version: "Android Debug Bridge 1.0.41",
           details: "Ready for USB devices",
         },
         build_tools: {
           detected: true,
           name: "Android Build Tools",
-          path: "C:\\Users\\jojin\\AppData\\Local\\Android\\Sdk\\build-tools\\35.0.0",
+          path: "C:\\Android\\Sdk\\build-tools\\35.0.0",
           version: "35.0.0",
           details: "34.0.0, 35.0.0",
         },
@@ -161,6 +184,26 @@ function mockHandler(cmd: string, args: Record<string, any>): any {
 
     case "save_config":
       return null;
+
+    case "install_toolchain_component":
+      return `Component ${args.component} installed successfully.`;
+
+    case "install_all_missing_components":
+      return ["Java JDK installed", "Platform Tools installed", "Git installed"];
+
+    case "add_path_to_environment":
+      return null;
+
+    case "detect_gpus":
+      return [
+        {
+          name: "NVIDIA GeForce RTX 3050 Laptop GPU",
+          vram_mb: 4096,
+          driver_version: "32.0.15.9186",
+          is_discrete: true,
+          acceleration: "Hardware Host Acceleration (DirectX 12 / Vulkan / Dedicated GPU)",
+        },
+      ];
 
     default:
       return null;

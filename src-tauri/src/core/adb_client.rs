@@ -1,6 +1,6 @@
+use crate::core::process_utils::hidden_command;
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
-use std::process::Command;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AndroidDevice {
@@ -50,7 +50,7 @@ impl AdbClient {
             }
         }
         // Fallback to where.exe adb
-        if let Ok(out) = Command::new("where.exe").arg("adb").output() {
+        if let Ok(out) = hidden_command("where.exe").arg("adb").output() {
             if out.status.success() {
                 let s = String::from_utf8_lossy(&out.stdout);
                 if let Some(line) = s.lines().next() {
@@ -67,7 +67,7 @@ impl AdbClient {
 
     pub fn list_devices(custom_sdk: Option<&str>) -> Result<Vec<AndroidDevice>, String> {
         let adb = Self::get_adb_binary(custom_sdk)?;
-        let output = Command::new(&adb)
+        let output = hidden_command(&adb)
             .arg("devices")
             .arg("-l")
             .output()
@@ -125,7 +125,7 @@ impl AdbClient {
 
             if is_authorized {
                 // Query properties
-                if let Ok(ver_out) = Command::new(&adb)
+                if let Ok(ver_out) = hidden_command(&adb)
                     .args(["-s", &serial, "shell", "getprop", "ro.build.version.release"])
                     .output()
                 {
@@ -136,7 +136,7 @@ impl AdbClient {
                         }
                     }
                 }
-                if let Ok(api_out) = Command::new(&adb)
+                if let Ok(api_out) = hidden_command(&adb)
                     .args(["-s", &serial, "shell", "getprop", "ro.build.version.sdk"])
                     .output()
                 {
@@ -147,7 +147,7 @@ impl AdbClient {
                         }
                     }
                 }
-                if let Ok(model_out) = Command::new(&adb)
+                if let Ok(model_out) = hidden_command(&adb)
                     .args(["-s", &serial, "shell", "getprop", "ro.product.model"])
                     .output()
                 {
@@ -195,7 +195,7 @@ impl AdbClient {
             return Err(format!("APK file does not exist at path: {}", apk_path));
         }
 
-        let out = Command::new(&adb)
+        let out = hidden_command(&adb)
             .args(["-s", serial, "install", "-r", apk_path])
             .output()
             .map_err(|e| format!("Failed to run adb install: {}", e))?;
@@ -218,7 +218,7 @@ impl AdbClient {
         package_name: &str,
     ) -> Result<AdbCommandResult, String> {
         let adb = Self::get_adb_binary(custom_sdk)?;
-        let out = Command::new(&adb)
+        let out = hidden_command(&adb)
             .args(["-s", serial, "uninstall", package_name])
             .output()
             .map_err(|e| format!("Failed to run adb uninstall: {}", e))?;
@@ -241,7 +241,7 @@ impl AdbClient {
         component: &str, // e.g. "com.example.myapp/.MainActivity"
     ) -> Result<AdbCommandResult, String> {
         let adb = Self::get_adb_binary(custom_sdk)?;
-        let out = Command::new(&adb)
+        let out = hidden_command(&adb)
             .args(["-s", serial, "shell", "am", "start", "-n", component])
             .output()
             .map_err(|e| format!("Failed to run adb am start: {}", e))?;
@@ -260,8 +260,8 @@ impl AdbClient {
 
     pub fn restart_server(custom_sdk: Option<&str>) -> Result<AdbCommandResult, String> {
         let adb = Self::get_adb_binary(custom_sdk)?;
-        let _ = Command::new(&adb).arg("kill-server").output();
-        let out = Command::new(&adb)
+        let _ = hidden_command(&adb).arg("kill-server").output();
+        let out = hidden_command(&adb)
             .arg("start-server")
             .output()
             .map_err(|e| format!("Failed to start adb server: {}", e))?;
@@ -279,7 +279,7 @@ impl AdbClient {
         serial: &str,
     ) -> Result<String, String> {
         let adb = Self::get_adb_binary(custom_sdk)?;
-        let out = Command::new(&adb)
+        let out = hidden_command(&adb)
             .args(["-s", serial, "exec-out", "screencap", "-p"])
             .output()
             .map_err(|e| format!("Failed to capture screenshot: {}", e))?;

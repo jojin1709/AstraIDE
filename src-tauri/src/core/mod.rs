@@ -11,3 +11,5 @@ pub mod resource_monitor;
 pub mod terminal_session;
 pub mod git_client;
 pub mod config_store;
+pub mod process_utils;
+pub mod tool_installer;

@@ -520,7 +520,7 @@ export const App: React.FC = () => {
         ...prev,
         {
           task: "install",
-          line: `✓ APK installed successfully on device ${serial}.`,
+          line: `[Success] APK installed successfully on device ${serial}.`,
           is_error: false,
         },
       ]);
@@ -859,7 +859,7 @@ export const App: React.FC = () => {
               ) : (
                 devices.map((d) => (
                   <option key={d.serial} value={d.serial} style={{ background: "var(--bg-secondary)" }}>
-                    {d.model} ({d.serial}) {d.is_authorized ? "✓" : "⚠"}
+                    {d.model} ({d.serial}) {d.is_authorized ? "[Online]" : "[Unauthorized]"}
                   </option>
                 ))
               )}

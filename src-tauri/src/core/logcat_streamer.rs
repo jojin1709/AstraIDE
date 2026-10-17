@@ -1,4 +1,5 @@
 use crate::core::adb_client::AdbClient;
+use crate::core::process_utils::{hidden_command, hidden_tokio_command};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::process::Stdio;
@@ -6,7 +7,6 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use tauri::{AppHandle, Emitter};
 use tokio::io::{AsyncBufReadExt, BufReader};
-use tokio::process::Command as TokioCommand;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LogcatEntry {
@@ -88,7 +88,7 @@ impl LogcatStreamer {
 
     pub fn clear_logcat(&self, custom_sdk: Option<&str>, serial: &str) -> Result<(), String> {
         let adb = AdbClient::get_adb_binary(custom_sdk)?;
-        let _ = std::process::Command::new(adb)
+        let _ = hidden_command(adb)
             .args(["-s", serial, "logcat", "-c"])
             .output()
             .map_err(|e| format!("Failed to clear logcat: {}", e))?;
@@ -112,7 +112,7 @@ impl LogcatStreamer {
 
         let serial_clone = serial.clone();
         tokio::spawn(async move {
-            let mut cmd = TokioCommand::new(adb);
+            let mut cmd = hidden_tokio_command(adb);
             cmd.args(["-s", &serial_clone, "logcat", "-v", "threadtime"]);
             cmd.stdout(Stdio::piped());
             cmd.stderr(Stdio::null());
