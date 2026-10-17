@@ -169,12 +169,16 @@ AstraIDE is an orchestration and development environment for the official Androi
 
 ## Key Capabilities
 
-- **Real-Time Environment Diagnostics**: Detects Java JDK, Android SDK paths, ADB daemon status, Git, and active hardware utilization on launch.
-- **Physical Device Debugger**: Detects USB and Wi-Fi devices, shows battery status, model names, and connection modes, with one-click screenshot capture.
+- **Real-Time Environment Diagnostics & Auto-Setup**: Detects Java JDK, Android SDK paths, ADB daemon status, Git, and active hardware utilization on launch, with automated 1-click installation of missing components and automatic Windows User `PATH` integration.
+- **In-IDE Custom Android Virtual Device (AVD) Creator**: Configure and launch custom emulators (Google Pixel 8 Pro, Pixel 7, Samsung Galaxy S23, 11" Tablet) with custom RAM allocation, Direct3D host GPU acceleration, and GrapheneOS hardened profile flags directly without needing Android Studio.
+- **Interactive Live Device Screen Mirror & Touch Controller**: Real-time phone screen mirror with pixel-accurate mouse click-to-tap, drag-to-swipe/scroll, physical Android navigation keys (Back, Home, Recents, Power, Vol+/Vol-), and live PC keyboard text input.
+- **Physical Device Debugger**: Detects USB and Wi-Fi devices, shows battery status, model names, and connection modes, with one-click screenshot capture and APK deployment.
+- **Host GPU Hardware Acceleration Detection**: Diagnostic detection for dedicated NVIDIA, AMD, and Intel Direct3D GPU adapters to maximize emulator rendering speed.
 - **Live Gradle Log Streaming**: Executes `gradlew.bat assembleDebug`, `assembleRelease`, or `clean` with real-time colored terminal output and automatic APK artifact discovery.
 - **High-Throughput Logcat Streamer**: Monitors `adb logcat -v threadtime` with instant filtering by log level (`VERBOSE`, `DEBUG`, `INFO`, `WARN`, `ERROR`, `FATAL`), PID, package name, or text query.
 - **Built-In APK Analyzer**: Inspects `.apk` archives directly — counts DEX classes, identifies native CPU architectures (`arm64-v8a`, `armeabi-v7a`, `x86_64`), and reads manifest metadata.
 - **Android Storage Analyzer**: Breaks down disk space consumed by your Android SDK, Gradle cache (`~/.gradle/caches`), emulator snapshots, and project build folders, with safe cleanup actions.
+- **Built-In In-IDE Update Center**: Instant GitHub Releases checking with one-click background download and installation of new AstraIDE releases.
 - **Hardware Resource Monitor**: Displays live system RAM, CPU load, and IDE process memory footprint in real-time.
 - **Integrated Terminal**: Built-in PowerShell and Command Prompt shells with your active project path pre-configured.
 - **Embedded Git Controls**: Check branch status, review modified files, inspect side-by-side diffs, and create commits without leaving the editor.
@@ -190,12 +194,15 @@ flowchart TD
     DEV["Developer / Windows 10 & 11"] --> SHELL["AstraIDE Desktop Shell<br/>(Tauri 2 · Native WebView2)"]
 
     subgraph RUST["High-Performance Rust Core"]
-        ENV["Environment Detector<br/>(JDK, SDK, ADB, Git, RAM)"]
+        ENV["Environment & GPU Detector<br/>(JDK, SDK, ADB, GPU, Auto-Setup)"]
         ADB["ADB Manager<br/>(USB/Wi-Fi devices, APK install, screenshot)"]
+        AVD["AVD Creator & Launcher<br/>(Custom models, Direct3D, GrapheneOS)"]
+        MIRROR["Screen Mirror & Touch Controller<br/>(Live frames, tap, swipe, hardware keys)"]
         GRADLE["Gradle Runner<br/>(gradlew.bat streaming, APK discovery)"]
         LOGCAT["Logcat Streamer<br/>(Threadtime parser & virtualized buffer)"]
         APK["APK Analyzer<br/>(ZIP inspection, DEX count, ABIs, manifest)"]
         STORAGE["Storage Analyzer<br/>(SDK, Gradle cache, build clean)"]
+        UPDATER["Update Center<br/>(GitHub Releases, 1-click update)"]
         GIT["Git Client<br/>(Branch, status, diff, commit)"]
     end
 
@@ -286,7 +293,7 @@ Yes. Once your Android SDK, Gradle dependencies, and JDK are cached on your mach
 Yes! Physical Android hardware is the primary design focus. Connect your phone via USB with USB Debugging enabled, and AstraIDE will immediately detect it, allow one-click APK installation, capture device screenshots, and stream Logcat in real time.
 
 ### Can I run Android emulators with AstraIDE?
-Yes. If you have an AVD configured in your Android SDK, AstraIDE detects running emulators alongside physical USB devices.
+Yes! AstraIDE includes an in-IDE **Custom AVD Creator & Launcher**. You can configure new virtual devices (Pixel 8 Pro, Pixel 7, Galaxy S23, 11" Tablet, or GrapheneOS hardened profile) with custom RAM and host Direct3D GPU acceleration directly inside AstraIDE without opening Android Studio. You can also interact with any running emulator or physical phone via the built-in **Screen Mirror** with click-to-tap and drag-to-swipe controls.
 
 ### How does AstraIDE keep memory usage so low?
 Unlike IDEs built on heavy JVM runtimes with background AST indexing threads, AstraIDE uses a lean Rust core (~10–20 MB) and Windows' native WebView2 runtime (~150 MB). Memory is kept strictly for your code and active logs, leaving your RAM free for your operating system and Gradle compiler.
@@ -295,7 +302,7 @@ Unlike IDEs built on heavy JVM runtimes with background AST indexing threads, As
 
 <div align="center">
 
-**Developed with ❤️ by [JOJIN JOHN](https://github.com/jojin1709)**
+**Developed by [JOJIN JOHN](https://github.com/jojin1709)**
 
 *AstraIDE — The Lightweight Android Development Environment for Windows*
 
